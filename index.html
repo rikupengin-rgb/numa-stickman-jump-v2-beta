@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#050b05" />
+  <title>沼ゲーのクソゲー Ver.2.0 β</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #050b05; color: #00ff66; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; }
+    body { position: fixed; inset: 0; overscroll-behavior: none; }
+    #gameContainer { position: relative; width: 100vw; height: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; background: radial-gradient(circle at 50% 20%, #09220d 0, #020802 55%, #010401 100%); touch-action: none; }
+    canvas { width: 100%; height: 100%; display: block; }
+
+    .overlay { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); background: rgba(3, 9, 4, .94); }
+    .hidden { display: none !important; }
+    .menu-card, .result-card { width: 100%; max-width: 350px; text-align: center; }
+    h1 { font-size: clamp(22px, 7vw, 31px); line-height: 1.15; color: #00ff66; text-shadow: 0 0 12px rgba(0,255,102,.45); }
+    .version { margin: 5px 0 12px; color: #87c98f; font-size: 12px; }
+    .wallet { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 10px 0 13px; font-weight: 800; color: #ffe06b; }
+    .menu-list { display: grid; gap: 8px; }
+    .btn { width: 100%; min-height: 48px; padding: 10px 9px; border-radius: 10px; background: rgba(0, 23, 5, .96); font-size: 14px; font-weight: 800; cursor: pointer; transition: transform .08s ease, opacity .08s ease; }
+    .btn:active { transform: scale(.975); opacity: .82; }
+    .btn-easy { border: 2px solid #38b45a; color: #79e59a; }
+    .btn-normal { border: 2px solid #2b8cff; color: #8ac2ff; }
+    .btn-hard { border: 2px solid #f04b51; color: #ff8589; }
+    .btn-endless { border: 2px solid #9e60ff; color: #d7b6ff; }
+    .btn-secondary { border: 1px solid #536157; color: #d2d8d3; }
+    .btn-retry { border: 2px solid #ffd84d; color: #ffe98d; background: rgba(44,34,0,.96); }
+    .btn-disabled { border: 1px dashed #4b5a4e; color: #68736a; opacity: .7; cursor: default; }
+    .info-box { margin-top: 12px; padding: 10px; border: 1px solid #38503c; border-radius: 10px; color: #d7e5d8; background: rgba(15, 29, 17, .78); font-size: 11px; line-height: 1.55; text-align: left; }
+    .info-box strong { color: #ffe36e; }
+
+    #hud { position: absolute; z-index: 12; inset: max(9px, env(safe-area-inset-top)) 10px auto; pointer-events: none; display: none; }
+    #hudTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .hudBox { padding: 7px 9px; border: 1px solid rgba(0,255,102,.28); border-radius: 9px; background: rgba(0, 18, 5, .72); backdrop-filter: blur(4px); font: 800 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; text-shadow: 0 1px 2px #000; }
+    #comboBox { color: #ffe36e; text-align: right; min-width: 94px; }
+    #warningBanner { position: absolute; z-index: 14; top: calc(max(10px, env(safe-area-inset-top)) + 62px); left: 50%; transform: translateX(-50%); min-width: 190px; padding: 7px 10px; text-align: center; border-radius: 999px; color: #fff3a0; background: rgba(115, 35, 0, .82); border: 1px solid rgba(255, 210, 0, .7); font-size: 12px; font-weight: 900; opacity: 0; transition: opacity .1s linear; pointer-events: none; }
+    #toast { position: absolute; z-index: 18; left: 50%; top: 31%; transform: translate(-50%, -50%); color: #fff4a8; font-weight: 950; font-size: 20px; text-shadow: 0 2px 3px #000, 0 0 10px rgba(255,235,80,.5); opacity: 0; pointer-events: none; white-space: nowrap; }
+    #touchLayer { position: absolute; inset: 0; z-index: 10; touch-action: none; }
+    #gestureHint { position: absolute; z-index: 11; bottom: max(12px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: calc(100% - 26px); padding: 7px 9px; border-radius: 9px; background: rgba(0,0,0,.45); color: #c8d0c9; text-align: center; font-size: 10px; pointer-events: none; }
+
+    .reason { margin: 8px 0 4px; color: #ff8b8b; font-size: 17px; font-weight: 900; }
+    .big-score { margin: 4px 0; color: #fff; font-size: 34px; font-weight: 950; }
+    .new-record { min-height: 22px; color: #ffe65a; font-weight: 900; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+    .stat { border: 1px solid #344d38; border-radius: 10px; padding: 9px 6px; background: rgba(12, 27, 15, .9); }
+    .stat small { display: block; color: #92a596; font-size: 10px; }
+    .stat b { display: block; margin-top: 2px; color: #dfffe5; font-size: 16px; }
+    .result-actions { display: grid; gap: 8px; }
+    .tiny { margin-top: 8px; color: #8ba18f; font-size: 10px; line-height: 1.5; }
+
+    @media (max-height: 650px) {
+      .overlay { align-items: flex-start; overflow-y: auto; }
+      .menu-card, .result-card { margin: 8px auto 16px; }
+      .btn { min-height: 42px; padding: 7px; }
+      .info-box { margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="gameCanvas" aria-label="沼ゲーのクソゲー ゲーム画面"></canvas>
+    <div id="touchLayer" class="hidden" aria-label="ゲーム操作エリア"></div>
+
+    <div id="hud">
+      <div id="hudTop">
+        <div id="statusBox" class="hudBox">DEPTH 0m<br>BEST 0m<br>🪙 0</div>
+        <div id="comboBox" class="hudBox">Lv.1<br>COMBO x0</div>
+      </div>
+    </div>
+    <div id="warningBanner">⚠️ タライが来る！ スワイプ回避！</div>
+    <div id="toast"></div>
+    <div id="gestureHint" class="hidden">タップ＝左右ジャンプ ／ 空中で横スワイプ＝緊急回避（1ジャンプ1回）</div>
+
+    <div id="menuOverlay" class="overlay">
+      <div class="menu-card">
+        <h1>☣️ 沼ゲーのクソゲー</h1>
+        <div class="version">Ver.2.0 β — 友人テスト版</div>
+        <div class="wallet"><span id="menuCoins">🪙 0</span><span id="menuBest">🏆 BEST 0m</span></div>
+        <div class="menu-list">
+          <button class="btn btn-easy" data-mode="easy">🌱 イージー <small>(1000m / 爆弾なし)</small></button>
+          <button class="btn btn-normal" data-mode="normal">⚔️ ノーマル <small>(1400m)</small></button>
+          <button class="btn btn-hard" data-mode="hard">🔥 ハード <small>(2000m / タライあり)</small></button>
+          <button class="btn btn-endless" data-mode="endless">☣️ 終わりなき泥沼 <small>(無限 LvUp)</small></button>
+          <button class="btn btn-disabled" type="button" disabled>🤝 ふたりで沼 — オンライン協力は Ver.2.1予定</button>
+        </div>
+        <div class="info-box">
+          <div>🆕 <strong>空中スライド：</strong>ジャンプ中に左右へ素早くスワイプ。</div>
+          <div>🪣 <strong>タライ警告：</strong>落下前に「！」が出る。ギリ避けはコイン獲得。</div>
+          <div>🪙 <strong>コイン復活：</strong>最後の安全な足場から最大3回まで復活可能。</div>
+          <div>🏆 自己ベスト・コインは端末に保存。</div>
+          <div>⚠️ 理不尽さは残しつつ、最低1本は狙えるルートを生成。</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultOverlay" class="overlay hidden">
+      <div class="result-card">
+        <h1 id="resultTitle">☠️ GAME OVER</h1>
+        <div id="resultReason" class="reason">沼った。</div>
+        <div id="resultDepth" class="big-score">0m</div>
+        <div id="newRecord" class="new-record"></div>
+        <div class="result-grid">
+          <div class="stat"><small>自己ベスト</small><b id="resultBest">0m</b></div>
+          <div class="stat"><small>所持コイン</small><b id="resultCoins">🪙 0</b></div>
+          <div class="stat"><small>最大コンボ</small><b id="resultCombo">x0</b></div>
+          <div class="stat"><small>危機一髪</small><b id="resultNear">0回</b></div>
+        </div>
+        <div class="result-actions">
+          <button id="retryBtn" class="btn btn-retry" type="button">🪙 30で同じ場所から復活</button>
+          <button id="againBtn" class="btn btn-secondary" type="button">↻ 最初からもう一回</button>
+          <button id="menuBtn" class="btn btn-secondary" type="button">☰ メニューへ</button>
+        </div>
+        <div id="retryNote" class="tiny">復活直後は約1.2秒無敵。復活するたび必要コインが増えます。</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const container = document.getElementById('gameContainer');
+      const menuOverlay = document.getElementById('menuOverlay');
+      const resultOverlay = document.getElementById('resultOverlay');
+      const touchLayer = document.getElementById('touchLayer');
+      const hud = document.getElementById('hud');
+      const statusBox = document.getElementById('statusBox');
+      const comboBox = document.getElementById('comboBox');
+      const warningBanner = document.getElementById('warningBanner');
+      const toast = document.getElementById('toast');
+      const gestureHint = document.getElementById('gestureHint');
+      const menuCoins = document.getElementById('menuCoins');
+      const menuBest = document.getElementById('menuBest');
+      const retryBtn = document.getElementById('retryBtn');
+      const againBtn = document.getElementById('againBtn');
+      const menuBtn = document.getElementById('menuBtn');
+
+      const STORAGE_KEY = 'numaStickmanV2';
+      const MODE_TARGET = { easy: 1000, normal: 1400, hard: 2000, endless: Infinity };
+      const MODE_LABEL = { easy: 'イージー', normal: 'ノーマル', hard: 'ハード', endless: '終わりなき泥沼' };
+
+      let save = loadSave();
+      let audioCtx = null;
+      let animId = null;
+      let isPlaying = false;
+      let mode = 'normal';
+      let targetDepth = 1400;
+      let depth = 0;
+      let level = 1;
+      let nextDepthReward = 100;
+      let platforms = [];
+      let basins = [];
+      let pickups = [];
+      let particles = [];
+      let floatTexts = [];
+      let checkpoint = null;
+      let retriesUsed = 0;
+      let maxCombo = 0;
+      let combo = 0;
+      let nearMisses = 0;
+      let platformSerial = 1;
+      let pickupSerial = 1;
+      let collectedPickupIds = new Set();
+      let lastGeneratedCenter = 0;
+      let taraiTimer = 160;
+      let frameNo = 0;
+      let toastTimer = 0;
+      let lastTime = performance.now();
+
+      const player = {
+        x: 0, y: 0, prevY: 0,
+        vx: 0, vy: 0,
+        radius: 10,
+        jumpCount: 0,
+        maxJumps: 2,
+        onPlatformId: null,
+        airDashUsed: false,
+        dashTimer: 0,
+        invuln: 0
+      };
+
+      function loadSave() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          return {
+            coins: Number.isFinite(parsed.coins) ? Math.max(0, Math.floor(parsed.coins)) : 80,
+            best: {
+              easy: parsed.best?.easy || 0,
+              normal: parsed.best?.normal || 0,
+              hard: parsed.best?.hard || 0,
+              endless: parsed.best?.endless || 0
+            }
+          };
+        } catch (_) {
+          return { coins: 80, best: { easy: 0, normal: 0, hard: 0, endless: 0 } };
+        }
+      }
+
+      function persist() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); } catch (_) {}
+        refreshMenuStats();
+      }
+
+      function refreshMenuStats() {
+        const allBest = Math.max(...Object.values(save.best));
+        menuCoins.textContent = `🪙 ${save.coins}`;
+        menuBest.textContent = `🏆 BEST ${allBest}m`;
+      }
+
+      function resize() {
+        const rect = container.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        canvas._cssWidth = rect.width;
+        canvas._cssHeight = rect.height;
+      }
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
+
+      function W() { return canvas._cssWidth || container.clientWidth; }
+      function H() { return canvas._cssHeight || container.clientHeight; }
+
+      function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      }
+
+      function sound(type) {
+        if (!audioCtx) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          const now = audioCtx.currentTime;
+          const presets = {
+            jump: [160, 430, .12, .13, 'sine'],
+            jump2: [300, 720, .12, .16, 'sine'],
+            dash: [700, 220, .09, .12, 'square'],
+            coin: [520, 980, .10, .10, 'sine'],
+            bomb: [220, 45, .35, .28, 'sawtooth'],
+            tarai: [980, 150, .22, .25, 'square'],
+            perfect: [420, 820, .15, .12, 'triangle']
+          };
+          const p = presets[type] || presets.jump;
+          osc.type = p[4];
+          osc.frequency.setValueAtTime(p[0], now);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, p[1]), now + p[2]);
+          gain.gain.setValueAtTime(p[3], now);
+          gain.gain.linearRampToValueAtTime(0, now + p[2]);
+          osc.start(now); osc.stop(now + p[2]);
+        } catch (_) {}
+      }
+
+      function startGame(selectedMode) {
+        initAudio();
+        if (animId) cancelAnimationFrame(animId);
+        mode = selectedMode;
+        targetDepth = MODE_TARGET[mode];
+        depth = 0; level = 1; nextDepthReward = 100;
+        platforms = []; basins = []; pickups = []; particles = []; floatTexts = [];
+        checkpoint = null; retriesUsed = 0; combo = 0; maxCombo = 0; nearMisses = 0;
+        platformSerial = 1; pickupSerial = 1; collectedPickupIds = new Set(); taraiTimer = 180; frameNo = 0;
+        isPlaying = true;
+
+        menuOverlay.classList.add('hidden');
+        resultOverlay.classList.add('hidden');
+        touchLayer.classList.remove('hidden');
+        gestureHint.classList.remove('hidden');
+        hud.style.display = 'block';
+
+        player.x = W() / 2;
+        player.y = H() - 120;
+        player.prevY = player.y;
+        player.vx = 0; player.vy = 0; player.jumpCount = 0; player.onPlatformId = null;
+        player.airDashUsed = false; player.dashTimer = 0; player.invuln = 0;
+
+        const base = makePlatform(W() / 2 - 45, H() - 60, 90, 'normal');
+        platforms.push(base);
+        lastGeneratedCenter = base.x + base.w / 2;
+        for (let i = 1; i < 17; i++) spawnPlatform(H() - 60 - i * 75);
+        saveCheckpoint(base);
+        updateHud();
+        lastTime = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+
+      function makePlatform(x, y, w, type) {
+        return {
+          id: platformSerial++, x, y, w, h: 12, type,
+          vx: type === 'moving' ? (Math.random() < .5 ? -1 : 1) * (1.4 + Math.random() * 1.6) : 0,
+          timer: 0, broken: false
+        };
+      }
+
+      function spawnPlatform(yPos) {
+        const width = 54 + Math.random() * 24;
+        const maxShift = Math.min(118 + level * 3, W() * .31);
+        const desiredCenter = lastGeneratedCenter + (Math.random() * 2 - 1) * maxShift;
+        const center = clamp(desiredCenter, width / 2 + 10, W() - width / 2 - 10);
+        const x = center - width / 2;
+
+        let type = 'normal';
+        const t = Math.random();
+        if (t < .42) type = 'normal';
+        else if (t < .62) type = 'swamp';
+        else if (t < .82) type = 'moving';
+        else type = 'vanish';
+        if (mode === 'easy' && type === 'vanish' && Math.random() < .5) type = 'normal';
+
+        const safe = makePlatform(x, yPos, width, type);
+        platforms.push(safe);
+        lastGeneratedCenter = center;
+
+        // 爆弾は「唯一の道」にはせず、危険なボーナスルートとして追加する。
+        if (mode !== 'easy' && Math.random() < (.15 + Math.min(level, 6) * .015)) {
+          const bw = 50 + Math.random() * 18;
+          let bx = center + (Math.random() < .5 ? -1 : 1) * (78 + Math.random() * 62) - bw / 2;
+          bx = clamp(bx, 8, W() - bw - 8);
+          const bomb = makePlatform(bx, yPos - 18 - Math.random() * 18, bw, 'bomb');
+          platforms.push(bomb);
+          if (Math.random() < .75) pickups.push({ id: pickupSerial++, x: bomb.x + bomb.w / 2, y: bomb.y - 24, r: 7, value: 5, taken: false, spin: Math.random() * 6.28 });
+        }
+
+        if (Math.random() < .22) pickups.push({ id: pickupSerial++, x: safe.x + safe.w / 2, y: safe.y - 27, r: 7, value: 3, taken: false, spin: Math.random() * 6.28 });
+      }
+
+      function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+      function handleJump(dir) {
+        if (!isPlaying) return;
+        initAudio();
+        if (player.jumpCount < player.maxJumps) {
+          player.vy = -13.5;
+          player.vx = dir * 6.15;
+          player.jumpCount++;
+          player.onPlatformId = null;
+          player.airDashUsed = false;
+          sound(player.jumpCount === 1 ? 'jump' : 'jump2');
+          puff(player.x, player.y + 12, 5);
+        }
+      }
+
+      function handleDash(dir) {
+        if (!isPlaying || player.jumpCount === 0 || player.airDashUsed) return false;
+        initAudio();
+        player.vx = dir * 12.2;
+        player.vy *= .88;
+        player.airDashUsed = true;
+        player.dashTimer = 9;
+        sound('dash');
+        showToast(dir < 0 ? '← 沼回避！' : '沼回避！ →', 36);
+        puff(player.x - dir * 9, player.y, 10);
+        return true;
+      }
+
+      let pointer = null;
+      touchLayer.addEventListener('pointerdown', (e) => {
+        if (!isPlaying) return;
+        pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+        try { touchLayer.setPointerCapture(e.pointerId); } catch (_) {}
+        e.preventDefault();
+      });
+      touchLayer.addEventListener('pointerup', (e) => {
+        if (!pointer || pointer.id !== e.pointerId || !isPlaying) return;
+        const dx = e.clientX - pointer.x;
+        const dy = e.clientY - pointer.y;
+        const dt = performance.now() - pointer.t;
+        const isHorizontalSwipe = Math.abs(dx) >= 42 && Math.abs(dx) > Math.abs(dy) * 1.15 && dt <= 420;
+        if (isHorizontalSwipe && player.jumpCount > 0) {
+          handleDash(dx < 0 ? -1 : 1);
+        } else {
+          const rect = container.getBoundingClientRect();
+          handleJump(e.clientX < rect.left + rect.width / 2 ? -1 : 1);
+        }
+        pointer = null;
+        e.preventDefault();
+      });
+      touchLayer.addEventListener('pointercancel', () => { pointer = null; });
+
+      window.addEventListener('keydown', (e) => {
+        if (!isPlaying) return;
+        if (e.code === 'KeyA') handleJump(-1);
+        if (e.code === 'KeyD') handleJump(1);
+        if (e.code === 'ArrowLeft') handleDash(-1);
+        if (e.code === 'ArrowRight') handleDash(1);
+      });
+
+      function loop(now) {
+        if (!isPlaying) return;
+        const rawDt = Math.min(34, Math.max(8, now - lastTime));
+        const step = rawDt / 16.6667;
+        lastTime = now;
+        frameNo++;
+
+        update(step);
+        draw();
+        if (isPlaying) animId = requestAnimationFrame(loop);
+      }
+
+      function update(step) {
+        player.prevY = player.y;
+        if (player.invuln > 0) player.invuln -= step;
+        if (player.dashTimer > 0) player.dashTimer -= step;
+        if (toastTimer > 0) {
+          toastTimer -= step;
+          if (toastTimer <= 0) toast.style.opacity = '0';
+        }
+
+        player.vy += .5 * step;
+        player.x += player.vx * step;
+        player.y += player.vy * step;
+        player.vx *= Math.pow(.82, step);
+
+        if (player.x - player.radius < 0) { player.x = player.radius; player.vx = Math.abs(player.vx) * .18; }
+        if (player.x + player.radius > W()) { player.x = W() - player.radius; player.vx = -Math.abs(player.vx) * .18; }
+
+        if (player.y < H() * .45) {
+          const diff = H() * .45 - player.y;
+          player.y = H() * .45;
+          depth += Math.max(1, Math.floor(diff / 2));
+          platforms.forEach(p => p.y += diff);
+          basins.forEach(b => b.y += diff);
+          pickups.forEach(c => c.y += diff);
+
+          while (topmostPlatformY() > -80) spawnPlatform(topmostPlatformY() - 75);
+          level = 1 + Math.floor(depth / 250);
+          while (depth >= nextDepthReward) {
+            addCoins(5, `+5 🪙 ${nextDepthReward}m到達`);
+            nextDepthReward += 100;
+          }
+        }
+
+        updateTarai(step);
+        updatePlatforms(step);
+        updatePickups(step);
+        updateParticles(step);
+
+        platforms = platforms.filter(p => p.y < H() + 100 && !p.remove);
+        basins = basins.filter(b => b.y < H() + 100 && !b.remove);
+        pickups = pickups.filter(c => !c.taken && c.y < H() + 80);
+
+        if (player.y > H() + 45) {
+          finishRun(false, '沼の底に沈んだ…');
+          return;
+        }
+
+        if (depth >= targetDepth) {
+          finishRun(true, `${MODE_LABEL[mode]} クリア！`);
+          return;
+        }
+
+        updateHud();
+      }
+
+      function topmostPlatformY() {
+        let y = Infinity;
+        for (const p of platforms) if (!p.broken && p.y < y) y = p.y;
+        return Number.isFinite(y) ? y : -20;
+      }
+
+      function updatePlatforms(step) {
+        for (const p of platforms) {
+          if (p.broken) continue;
+          if (p.type === 'moving') {
+            p.x += p.vx * step;
+            if (p.x < 5) { p.x = 5; p.vx = Math.abs(p.vx); }
+            if (p.x + p.w > W() - 5) { p.x = W() - 5 - p.w; p.vx = -Math.abs(p.vx); }
+          }
+
+          const prevBottom = player.prevY + player.radius;
+          const bottom = player.y + player.radius;
+          const horizontal = player.x + player.radius > p.x && player.x - player.radius < p.x + p.w;
+          const crossing = player.vy >= 0 && prevBottom <= p.y + 5 && bottom >= p.y;
+          if (!horizontal || !crossing) continue;
+
+          if (p.type === 'bomb') {
+            const margin = 13;
+            const centerDanger = player.x > p.x + margin && player.x < p.x + p.w - margin;
+            if (centerDanger && player.invuln <= 0) {
+              p.broken = true;
+              sound('bomb');
+              explode(p.x + p.w / 2, p.y, 20);
+              finishRun(false, '💣 爆弾を踏んで爆死！');
+              return;
+            }
+          }
+
+          if (p.type === 'swamp') {
+            player.y = p.y - player.radius + 2;
+            player.vy = 1.25;
+            player.vx *= .45;
+            player.jumpCount = 0;
+            player.airDashUsed = false;
+            player.onPlatformId = p.id;
+            combo = 0;
+            continue;
+          }
+
+          const isNewLanding = player.onPlatformId !== p.id;
+          player.y = p.y - player.radius;
+          player.vy = 0;
+          player.vx = p.type === 'moving' ? p.vx : 0;
+          player.jumpCount = 0;
+          player.airDashUsed = false;
+          player.onPlatformId = p.id;
+
+          if (isNewLanding) {
+            const centerError = Math.abs(player.x - (p.x + p.w / 2));
+            if (centerError <= Math.max(6, p.w * .10)) {
+              combo++;
+              maxCombo = Math.max(maxCombo, combo);
+              sound('perfect');
+              showFloat('PERFECT!', player.x, player.y - 32, '#ffe66a');
+              if (combo % 3 === 0) addCoins(2, `COMBO x${combo} +2🪙`);
+            } else {
+              combo = Math.max(0, combo - 1);
+            }
+
+            if (p.type === 'vanish') p.timer = 1;
+            if (p.type === 'normal' || p.type === 'moving') saveCheckpoint(p);
+          }
+        }
+
+        for (const p of platforms) {
+          if (p.type === 'vanish' && p.timer > 0 && !p.broken) {
+            p.timer += step;
+            if (p.timer > 20) { p.broken = true; puff(p.x + p.w / 2, p.y, 12); }
+          }
+        }
+      }
+
+      function updatePickups(step) {
+        for (const c of pickups) {
+          if (c.taken) continue;
+          c.spin += .1 * step;
+          const dx = player.x - c.x;
+          const dy = player.y - c.y;
+          if (dx * dx + dy * dy < 24 * 24) {
+            c.taken = true;
+            collectedPickupIds.add(c.id);
+            addCoins(c.value, `+${c.value} 🪙`);
+            sound('coin');
+            showFloat(`+${c.value}🪙`, c.x, c.y - 8, '#ffe96b');
+          }
+        }
+      }
+
+      function resetTaraiTimer() {
+        const l = Math.min(level, 8);
+        if (mode === 'hard') taraiTimer = 115 + Math.random() * Math.max(65, 155 - l * 8);
+        else if (mode === 'endless') taraiTimer = 150 + Math.random() * Math.max(55, 190 - l * 12);
+        else taraiTimer = 999999;
+      }
+
+      function updateTarai(step) {
+        const enabled = mode === 'hard' || mode === 'endless';
+        if (enabled && depth > 120) {
+          taraiTimer -= step;
+          if (taraiTimer <= 0) {
+            spawnTarai();
+            resetTaraiTimer();
+          }
+        }
+
+        let hasWarning = false;
+        for (const b of basins) {
+          if (b.warning > 0) {
+            b.warning -= step;
+            hasWarning = true;
+            if (b.warning <= 0) b.active = true;
+            continue;
+          }
+          if (!b.active) continue;
+
+          b.y += b.vy * step;
+          const dx = Math.abs(player.x - (b.x + b.w / 2));
+          const dy = Math.abs((player.y - 2) - (b.y + b.h / 2));
+          if (!b.hitChecked && dx < 21 && dy < 22 && player.invuln <= 0) {
+            b.hitChecked = true;
+            sound('tarai');
+            finishRun(false, '🪣 金タライ直撃！');
+            return;
+          }
+
+          if (!b.nearAwarded && b.y > player.y + 24) {
+            b.nearAwarded = true;
+            if (dx >= 21 && dx < 62) {
+              nearMisses++;
+              addCoins(5, '危機一髪！ +5🪙');
+              showFloat('危機一髪！', player.x, player.y - 38, '#fff08a');
+            }
+          }
+        }
+        warningBanner.style.opacity = hasWarning ? '1' : '0';
+      }
+
+      function spawnTarai() {
+        const w = 34;
+        let targetX = player.x + (Math.random() * 54 - 27) - w / 2;
+        targetX = clamp(targetX, 4, W() - w - 4);
+        basins.push({
+          x: targetX, y: -35, w, h: 15, vy: 7.5 + Math.min(level, 8) * .25,
+          warning: Math.max(24, 42 - level * 1.4), active: false,
+          hitChecked: false, nearAwarded: false
+        });
+      }
+
+      function saveCheckpoint(platform) {
+        // 最後の安全足場を丸ごとスナップショット化。復活時はタライだけ消して即死を防ぐ。
+        checkpoint = {
+          depth,
+          level,
+          nextDepthReward,
+          player: { x: clamp(platform.x + platform.w / 2, 14, W() - 14), y: platform.y - player.radius },
+          platforms: platforms.map(p => ({ ...p })),
+          pickups: pickups.map(c => ({ ...c })),
+          lastGeneratedCenter,
+          platformSerial,
+          pickupSerial
+        };
+      }
+
+      function retryFromCheckpoint() {
+        if (!checkpoint || retriesUsed >= 3) return;
+        const cost = retryCost();
+        if (save.coins < cost) return;
+        save.coins -= cost;
+        retriesUsed++;
+        persist();
+
+        depth = checkpoint.depth;
+        level = checkpoint.level;
+        nextDepthReward = Math.max(nextDepthReward, checkpoint.nextDepthReward);
+        platforms = checkpoint.platforms.map(p => ({ ...p }));
+        pickups = checkpoint.pickups.map(c => ({ ...c })).filter(c => !collectedPickupIds.has(c.id));
+        basins = [];
+        lastGeneratedCenter = checkpoint.lastGeneratedCenter;
+        platformSerial = checkpoint.platformSerial;
+        pickupSerial = Math.max(pickupSerial, checkpoint.pickupSerial || 1);
+        taraiTimer = 105;
+
+        player.x = checkpoint.player.x;
+        player.y = checkpoint.player.y;
+        player.prevY = player.y;
+        player.vx = 0; player.vy = -4.5;
+        player.jumpCount = 0; player.onPlatformId = null; player.airDashUsed = false;
+        player.invuln = 72; player.dashTimer = 0;
+        combo = 0;
+
+        resultOverlay.classList.add('hidden');
+        touchLayer.classList.remove('hidden');
+        gestureHint.classList.remove('hidden');
+        hud.style.display = 'block';
+        isPlaying = true;
+        showToast(`復活！ -${cost}🪙`, 70);
+        lastTime = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+
+      function retryCost() { return [30, 60, 120][retriesUsed] ?? 9999; }
+
+      function addCoins(amount, toastText) {
+        save.coins += Math.max(0, Math.floor(amount));
+        persist();
+        if (toastText) showToast(toastText, 42);
+      }
+
+      function finishRun(cleared, reason) {
+        if (!isPlaying) return;
+        isPlaying = false;
+        if (animId) cancelAnimationFrame(animId);
+        animId = null;
+        touchLayer.classList.add('hidden');
+        gestureHint.classList.add('hidden');
+        hud.style.display = 'none';
+        warningBanner.style.opacity = '0';
+
+        const oldBest = save.best[mode] || 0;
+        const newRecord = depth > oldBest;
+        if (newRecord) save.best[mode] = depth;
+        persist();
+
+        document.getElementById('resultTitle').textContent = cleared ? '🎉 CLEAR!' : '☠️ GAME OVER';
+        document.getElementById('resultReason').textContent = reason;
+        document.getElementById('resultDepth').textContent = `${depth}m`;
+        document.getElementById('newRecord').textContent = newRecord ? '🏆 NEW RECORD!' : '';
+        document.getElementById('resultBest').textContent = `${save.best[mode]}m`;
+        document.getElementById('resultCoins').textContent = `🪙 ${save.coins}`;
+        document.getElementById('resultCombo').textContent = `x${maxCombo}`;
+        document.getElementById('resultNear').textContent = `${nearMisses}回`;
+
+        if (cleared) {
+          retryBtn.classList.add('hidden');
+          document.getElementById('retryNote').textContent = 'クリアおめでとう！ 次は別モードか自己ベスト更新へ。';
+        } else {
+          retryBtn.classList.remove('hidden');
+          updateRetryButton();
+        }
+        resultOverlay.classList.remove('hidden');
+      }
+
+      function updateRetryButton() {
+        const cost = retryCost();
+        const canRetry = !!checkpoint && retriesUsed < 3 && save.coins >= cost;
+        retryBtn.disabled = !canRetry;
+        retryBtn.style.opacity = canRetry ? '1' : '.48';
+        if (retriesUsed >= 3) retryBtn.textContent = '復活上限（1プレイ3回）';
+        else if (!checkpoint) retryBtn.textContent = '復活地点なし';
+        else if (save.coins < cost) retryBtn.textContent = `🪙 ${cost}必要（所持 ${save.coins}）`;
+        else retryBtn.textContent = `🪙 ${cost}で同じ場所から復活`;
+        document.getElementById('retryNote').textContent = `復活 ${retriesUsed}/3回使用。復活直後は約1.2秒無敵。`;
+      }
+
+      function backToMenu() {
+        isPlaying = false;
+        if (animId) cancelAnimationFrame(animId);
+        animId = null;
+        resultOverlay.classList.add('hidden');
+        menuOverlay.classList.remove('hidden');
+        touchLayer.classList.add('hidden');
+        gestureHint.classList.add('hidden');
+        hud.style.display = 'none';
+        refreshMenuStats();
+      }
+
+      function updateHud() {
+        const best = Math.max(save.best[mode] || 0, depth);
+        statusBox.innerHTML = `DEPTH ${depth}m<br>BEST ${best}m<br>🪙 ${save.coins}`;
+        comboBox.innerHTML = `Lv.${level}<br>COMBO x${combo}${player.airDashUsed ? '<br>SLIDE ✕' : '<br>SLIDE ✓'}`;
+      }
+
+      function showToast(text, frames = 45) {
+        toast.textContent = text;
+        toast.style.opacity = '1';
+        toastTimer = frames;
+      }
+
+      function showFloat(text, x, y, color) {
+        floatTexts.push({ text, x, y, life: 50, color });
+      }
+
+      function puff(x, y, amount) {
+        for (let i = 0; i < amount; i++) {
+          particles.push({ x, y, vx: (Math.random() - .5) * 3, vy: (Math.random() - .5) * 2, life: 20 + Math.random() * 18, size: 1 + Math.random() * 2 });
+        }
+      }
+
+      function explode(x, y, amount) {
+        for (let i = 0; i < amount; i++) {
+          particles.push({ x, y, vx: (Math.random() - .5) * 8, vy: (Math.random() - .5) * 7, life: 28 + Math.random() * 22, size: 2 + Math.random() * 3 });
+        }
+      }
+
+      function updateParticles(step) {
+        for (const p of particles) {
+          p.x += p.vx * step; p.y += p.vy * step; p.vy += .06 * step; p.life -= step;
+        }
+        particles = particles.filter(p => p.life > 0);
+        for (const f of floatTexts) { f.y -= .55 * step; f.life -= step; }
+        floatTexts = floatTexts.filter(f => f.life > 0);
+      }
+
+      function draw() {
+        const w = W(), h = H();
+        ctx.clearRect(0, 0, w, h);
+        drawBackground(w, h);
+        drawPlatforms();
+        drawPickups();
+        drawTarai();
+        drawParticles();
+        drawPlayer();
+        drawFloatTexts();
+      }
+
+      function drawBackground(w, h) {
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, '#05180a'); g.addColorStop(.55, '#020b04'); g.addColorStop(1, '#010301');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(0,255,102,.035)'; ctx.lineWidth = 1;
+        const offset = (depth * .18) % 40;
+        for (let y = -40 + offset; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      }
+
+      function drawPlatforms() {
+        for (const p of platforms) {
+          if (p.broken) continue;
+          const colors = { normal: '#2ca84f', swamp: '#845026', moving: '#22a3ba', vanish: '#e4bd35', bomb: '#c83b42' };
+          ctx.fillStyle = colors[p.type] || '#2ca84f';
+          ctx.fillRect(p.x, p.y, p.w, p.h);
+          ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fillRect(p.x, p.y, p.w, 2);
+          if (p.type === 'swamp') {
+            ctx.fillStyle = '#5b331b';
+            for (let i = 0; i < 4; i++) ctx.fillRect(p.x + 8 + i * (p.w - 16) / 3, p.y - 3 - (i % 2) * 2, 5, 4);
+          }
+          if (p.type === 'moving') {
+            ctx.fillStyle = '#d7f7ff'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(p.vx > 0 ? '→' : '←', p.x + p.w / 2, p.y + 10);
+          }
+          if (p.type === 'vanish') {
+            ctx.globalAlpha = p.timer > 0 ? clamp(1 - p.timer / 22, .12, 1) : 1;
+            ctx.fillStyle = '#222'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('…', p.x + p.w/2, p.y + 9); ctx.globalAlpha = 1;
+          }
+          if (p.type === 'bomb') {
+            ctx.fillStyle = '#fff'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💣', p.x + p.w / 2, p.y + 10);
+          }
+        }
+        ctx.textAlign = 'start';
+      }
+
+      function drawPickups() {
+        for (const c of pickups) {
+          if (c.taken) continue;
+          const scale = .65 + Math.abs(Math.cos(c.spin)) * .35;
+          ctx.save(); ctx.translate(c.x, c.y); ctx.scale(scale, 1);
+          ctx.beginPath(); ctx.arc(0, 0, c.r, 0, Math.PI * 2); ctx.fillStyle = '#ffd94b'; ctx.fill();
+          ctx.strokeStyle = '#fff2a6'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.fillStyle = '#6d5300'; ctx.font = 'bold 8px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('N', 0, .5);
+          ctx.restore();
+        }
+        ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+      }
+
+      function drawTarai() {
+        for (const b of basins) {
+          if (b.warning > 0) {
+            const cx = b.x + b.w / 2;
+            const pulse = .55 + .45 * Math.abs(Math.sin(frameNo * .22));
+            ctx.globalAlpha = pulse;
+            ctx.fillStyle = '#ffea55'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', cx, 95);
+            ctx.strokeStyle = 'rgba(255,230,50,.65)'; ctx.setLineDash([4, 6]);
+            ctx.beginPath(); ctx.moveTo(cx, 104); ctx.lineTo(cx, Math.min(H() * .55, player.y - 35)); ctx.stroke(); ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+          } else if (b.active) {
+            ctx.fillStyle = '#dcbf32'; ctx.fillRect(b.x, b.y, b.w, b.h);
+            ctx.fillStyle = '#fff2a0'; ctx.fillRect(b.x + 3, b.y + 2, b.w - 6, 3);
+            ctx.strokeStyle = '#8f7614'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, b.w, b.h);
+          }
+        }
+        ctx.textAlign = 'start';
+      }
+
+      function drawPlayer() {
+        const blink = player.invuln > 0 && Math.floor(player.invuln / 5) % 2 === 0;
+        if (blink) return;
+        ctx.save();
+        ctx.translate(player.x, player.y);
+        if (player.dashTimer > 0) ctx.rotate(player.vx > 0 ? .25 : -.25);
+        ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2.7; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(0, -14, 7, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(0, 5); ctx.stroke();
+        ctx.beginPath();
+        if (player.dashTimer > 0) {
+          const d = player.vx > 0 ? 1 : -1;
+          ctx.moveTo(0, -2); ctx.lineTo(-d * 12, -2);
+          ctx.moveTo(0, -2); ctx.lineTo(d * 9, 2);
+          ctx.moveTo(0, 5); ctx.lineTo(-d * 10, 12);
+          ctx.moveTo(0, 5); ctx.lineTo(d * 10, 8);
+        } else if (player.vy < 0) {
+          ctx.moveTo(0, -2); ctx.lineTo(-9, -12); ctx.moveTo(0, -2); ctx.lineTo(9, -12);
+          ctx.moveTo(0, 5); ctx.lineTo(-7, 16); ctx.moveTo(0, 5); ctx.lineTo(7, 16);
+        } else {
+          ctx.moveTo(0, -2); ctx.lineTo(-8, 4); ctx.moveTo(0, -2); ctx.lineTo(8, 4);
+          ctx.moveTo(0, 5); ctx.lineTo(-6, 16); ctx.moveTo(0, 5); ctx.lineTo(6, 16);
+        }
+        ctx.stroke(); ctx.restore();
+      }
+
+      function drawParticles() {
+        ctx.fillStyle = '#96ffae';
+        for (const p of particles) { ctx.globalAlpha = clamp(p.life / 28, 0, 1); ctx.fillRect(p.x, p.y, p.size, p.size); }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawFloatTexts() {
+        ctx.textAlign = 'center'; ctx.font = 'bold 13px sans-serif';
+        for (const f of floatTexts) {
+          ctx.globalAlpha = clamp(f.life / 28, 0, 1); ctx.fillStyle = f.color; ctx.fillText(f.text, f.x, f.y);
+        }
+        ctx.globalAlpha = 1; ctx.textAlign = 'start';
+      }
+
+      document.querySelectorAll('[data-mode]').forEach(btn => btn.addEventListener('click', () => startGame(btn.dataset.mode)));
+      retryBtn.addEventListener('click', retryFromCheckpoint);
+      againBtn.addEventListener('click', () => startGame(mode));
+      menuBtn.addEventListener('click', backToMenu);
+
+      refreshMenuStats();
+    })();
+  </script>
+</body>
+</html>
