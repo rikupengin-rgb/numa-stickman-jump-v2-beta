@@ -780,8 +780,8 @@
     if (mode === 'easy') return ['まだゲームです','沼が起きた','床が怪しい','手が忙しい','イージーとは？'][info.level-1] || info.name;
     if (mode === 'normal') return ['まだ普通','沼が本気','💣 爆弾解禁','消える床がサボる','🪣 タライ係出勤','☣️ 全部盛り'][info.level-1] || info.name;
     if (mode === 'hard') return `🔥 ${info.name}`;
-    if (mode === 'endless') return info.level % 5 === 0 ? `☣️ 泥沼 Lv.${info.level}　まだやるの？` : `☣️ ${info.name}`;
-    if (mode === 'oni') return info.level % 4 === 0 ? `👹 ${info.name}　まだ生きてる？` : `👹 ${info.name}`;
+    if (mode === 'endless') return '☣️ ENDLESS';
+    if (mode === 'oni') return '👹 ONI';
     return info.name;
   }
 
