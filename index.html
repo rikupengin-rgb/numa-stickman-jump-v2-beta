@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#050b05">
-  <title>沼ゲーのクソゲー Ver.2.5.3 β</title>
+  <title>沼ゲーのクソゲー Ver.3.1 β</title>
   <style>
     * { box-sizing: border-box !important; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
     html, body { width: 100%; height: 100%; background: #050b05; color: #00ff66; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; overflow: hidden; position: fixed; }
@@ -25,6 +25,8 @@
     .btn-normal { border: 2px solid #007bff; color: #64a6bd; }
     .btn-hard { border: 2px solid #dc3545; color: #ff6b6b; }
     .btn-endless { border: 2px solid #6f42c1; color: #e16aa7; }
+    .btn-oni { border: 2px solid #ff7a00; color: #ffd09a; background: rgba(38,12,0,.95); }
+    .btn-oni:disabled { border-color: #59341d; color: #82654f; background: rgba(24,12,7,.9); }
     .btn-shop { border: 2px solid #f2c94c; color: #ffe066; }
     .btn-revive { border: 2px solid #f2c94c; color: #ffe066; }
     .btn-restart { border: 2px solid #00a86b; color: #79ffbd; }
@@ -53,7 +55,7 @@
     .skin-btn:disabled { opacity: .45; }
     .btn-ranking { border: 2px solid #9b59b6; color: #e6b8ff; }
     #rankingOverlay { justify-content: flex-start; padding-top: 20px; padding-bottom: 24px; }
-    .ranking-tabs { width: 100%; display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; }
+    .ranking-tabs { width: 100%; display: grid; grid-template-columns: repeat(5,1fr); gap: 5px; }
     .rank-tab { min-height: 38px; border: 1px solid #35523b; border-radius: 7px; background: #07180b; color: #9fc49f; font-size: 10px; font-weight: 800; }
     .rank-tab.active { border-color: #d7a6ff; color: #f3ddff; background: #22102d; }
     .ranking-name-row { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 7px; }
@@ -76,17 +78,18 @@
 
   <div id="menuOverlay" class="overlay">
     <div class="menu-card">
-      <h1>☣️ 沼ゲーのクソゲー Ver.2.5.3 β</h1>
-      <div class="subtitle">〜 横スラを覚えたら、沼が本気を出す 〜</div>
+      <h1>☣️ 沼ゲーのクソゲー Ver.3.1 β</h1>
+      <div class="subtitle">〜 見た目は本気、中身はちゃんとクソゲー 〜</div>
       <div class="wallet">
         <span>🪙 COIN <strong id="menuCoins">0</strong></span>
         <span>装備 <strong id="menuSkin">沼棒人間</strong></span>
       </div>
       <div class="menu-list">
-        <button class="btn btn-easy" data-mode="easy">🌱 イージー (1000m / 4段階Lv)</button>
-        <button class="btn btn-normal" data-mode="normal">⚔️ ノーマル (1400m / 6段階Lv)</button>
-        <button class="btn btn-hard" data-mode="hard">🔥 ハード (2000m / 先読みタライ)</button>
-        <button class="btn btn-endless" data-mode="endless">☣️ 終わりなき泥沼 (無限LvUp)</button>
+        <button class="btn btn-easy" data-mode="easy">🌱 イージー (1500m / 5段階Lv)</button>
+        <button class="btn btn-normal" data-mode="normal">⚔️ ノーマル (2200m / 6段階Lv)</button>
+        <button class="btn btn-hard" data-mode="hard">🔥 ハード (3000m / 6段階Lv)</button>
+        <button class="btn btn-endless" data-mode="endless">☣️ 終わりなき泥沼 (500mごとLvUp)</button>
+        <button id="oniModeBtn" class="btn btn-oni" data-mode="oni">🔒 鬼むずっ ENDLESS (ENDLESS 2000mで解放)</button>
         <button id="rankingBtn" class="btn btn-ranking">🏆 RANKING</button>
         <button id="shopBtn" class="btn btn-shop">🧍 CHARACTER SHOP</button>
       </div>
@@ -94,11 +97,12 @@
         <div>👈 左タップ：左ジャンプ / 右タップ：右ジャンプ 👉</div>
         <div>💨 空中スワイプ：1ジャンプ1回の緊急スライド</div>
         <div>🟫 沼は泥しぶき＋約1.3秒の泥状態。ジャンプ/横移動が重くなる</div>
-        <div>⚠️ 後半は「タライ→横スラ→沼/爆弾」の複合配置が増える</div>
-        <div>🏆 EASY/NORMAL/HARD：クリアタイム / ENDLESS：最高到達距離</div>
+        <div>⚠️ 後半はジャンプ高速化＋「タライ→横スラ→沼/爆弾」の複合地獄</div>
+        <div>🏆 EASY/NORMAL/HARD：クリアタイム / ENDLESS・鬼むずっ：最高到達距離</div>
+        <div>👹 鬼むずっ：ENDLESS 2000m到達で解放。最初からHARD後半級。</div>
         <div>⏱️ 復活は最大3回。固定距離モードは1回につきランキングタイム＋5秒</div>
         <div>🪙 コインで復活＆キャラ購入。BEST・購入・装備状態は端末保存</div>
-        <div class="controls-hint">※ 以前のコイン・BEST・購入キャラは可能な限り引き継ぎます</div>
+        <div class="controls-hint">※ Ver.3.1：Ver.3.0.1のコイン・キャラ・名前・共通ランキングをそのまま引継ぎ</div>
       </div>
     </div>
   </div>
@@ -111,7 +115,7 @@
       </div>
       <div id="skinGrid" class="shop-grid"></div>
       <button id="shopCloseBtn" class="btn btn-menu">← モード選択へ戻る</button>
-      <div class="beta-note">☣️ 沼人間：いずれかのモードで1000m到達 / 👑 沼神：無限2000m到達</div>
+      <div class="beta-note">☣️ 沼人間：1000m / 👑 沼神：ENDLESS 2000m / 👹 鬼：鬼むずっ1000m / 🔥 鬼神：鬼むずっ3000m</div>
     </div>
   </div>
 
@@ -130,6 +134,7 @@
         <button class="rank-tab" data-rank-mode="normal">NORMAL</button>
         <button class="rank-tab" data-rank-mode="hard">HARD</button>
         <button class="rank-tab" data-rank-mode="endless">ENDLESS</button>
+        <button class="rank-tab" data-rank-mode="oni">鬼むず</button>
       </div>
       <div id="rankingList" class="ranking-list"></div>
       <div id="rankingStatus" class="ranking-status"></div>
@@ -156,7 +161,7 @@
         <button id="resultShopBtn" class="btn btn-shop">🧍 CHARACTER SHOP</button>
         <button id="menuBtn" class="btn btn-menu">☰ モード選択へ</button>
       </div>
-      <div class="beta-note">復活コスト：50 → 150 → 300。最大3回。EASY/NORMAL/HARDは復活1回につきランキングタイム＋5秒。</div>
+      <div class="beta-note">復活：通常 50→150→300 / 鬼むずっ 100→300→600。最大3回。固定距離モードは1回につきランキングタイム＋5秒。</div>
     </div>
   </div>
 </div>
@@ -197,9 +202,10 @@
   const reviveBtn = document.getElementById('reviveBtn');
   const restartBtn = document.getElementById('restartBtn');
   const menuBtn = document.getElementById('menuBtn');
+  const oniModeBtn = document.getElementById('oniModeBtn');
 
-  const STORAGE_KEY = 'numaStickmanV24Beta';
-  const LEGACY_STORAGE_KEYS = ['numaStickmanV23Beta','numaStickmanV22Beta','numaStickmanV21Beta','numaStickmanV2Beta'];
+  const STORAGE_KEY = 'numaStickmanV30Beta';
+  const LEGACY_STORAGE_KEYS = ['numaStickmanV24Beta','numaStickmanV23Beta','numaStickmanV22Beta','numaStickmanV21Beta','numaStickmanV2Beta'];
   const REVIVE_COSTS = [50, 150, 300];
 
   // ★ここに Firebase Realtime Database のURLを1行だけ貼ると、友達全員共通ランキングになります。
@@ -207,6 +213,7 @@
   // Firebase Console → Realtime Database に表示されるURLをそのまま貼ってください。
   const FIREBASE_DB_URL = 'https://numa-stickman-jump-default-rtdb.asia-southeast1.firebasedatabase.app';
   const RANK_LIMIT = 10;
+  const LEADERBOARD_ROOT = 'leaderboard';
 
   const SKINS = {
     normal: { name: '沼棒人間', icon: '🟢', price: 0, desc: '初期キャラ。緑の棒人間。' },
@@ -218,7 +225,9 @@
     duck: { name: 'アヒル', icon: '🦆', price: 1500, desc: '棒人間ですらない。クワッ。' },
     gold: { name: '金ピカ', icon: '🥇', price: 2500, desc: '全身金色＋キラキラのオーラ。' },
     mud: { name: '沼人間', icon: '☣️', achievement: '1000m', desc: 'いずれかのモードで1000m到達。泥そのもの。' },
-    god: { name: '沼神', icon: '👑', achievement: 'endless2000', desc: 'ENDLESS 2000m到達。王冠と沼オーラ。' }
+    god: { name: '沼神', icon: '👑', achievement: 'endless2000', desc: 'ENDLESS 2000m到達。王冠と沼オーラ。' },
+    oni: { name: '鬼', icon: '👹', achievement: 'oni1000', desc: '鬼むずっ ENDLESS 1000m到達。赤鬼＋金棒。' },
+    kishin: { name: '鬼神', icon: '🔥', achievement: 'oni3000', desc: '鬼むずっ ENDLESS 3000m到達。鬼を超えた沼の化け物。' }
   };
 
   function normalizeBest(best) {
@@ -226,7 +235,8 @@
       easy: Number(best && best.easy) || 0,
       normal: Number(best && best.normal) || 0,
       hard: Number(best && best.hard) || 0,
-      endless: Number(best && best.endless) || 0
+      endless: Number(best && best.endless) || 0,
+      oni: Number(best && best.oni) || 0
     };
   }
 
@@ -247,12 +257,13 @@
   }
 
   function isTimeMode(m) { return m === 'easy' || m === 'normal' || m === 'hard'; }
+  function isDistanceMode(m) { return m === 'endless' || m === 'oni'; }
 
   function normalizeRankings(rankings) {
-    const base = { easy:[], normal:[], hard:[], endless:[] };
+    const base = { easy:[], normal:[], hard:[], endless:[], oni:[] };
     for (const m of Object.keys(base)) {
       const rows = rankings && Array.isArray(rankings[m]) ? rankings[m] : [];
-      if (m === 'endless') {
+      if (isDistanceMode(m)) {
         base[m] = rows.filter(r => r && Number.isFinite(Number(r.depth))).map(r => ({
           name: String(r.name || '名無し沼民').slice(0,12),
           depth: Math.max(0, Math.floor(Number(r.depth))),
@@ -304,11 +315,17 @@
 
   function loadSave() {
     try {
-      const keys = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
-      for (const key of keys) {
+      const current = localStorage.getItem(STORAGE_KEY);
+      if (current) return normalizeSaveObject(JSON.parse(current));
+      for (const key of LEGACY_STORAGE_KEYS) {
         const raw = localStorage.getItem(key);
         if (!raw) continue;
-        return normalizeSaveObject(JSON.parse(raw));
+        const migrated = normalizeSaveObject(JSON.parse(raw));
+        // Ver.3.0は距離と物理が別コース扱い。コイン・キャラ・名前だけ引継ぎ、記録は公平のため新規スタート。
+        migrated.best = normalizeBest(null);
+        migrated.bestTimes = normalizeBestTimes(null);
+        migrated.rankings = normalizeRankings(null);
+        return migrated;
       }
     } catch (e) {}
     return normalizeSaveObject(null);
@@ -324,6 +341,8 @@
   function achievementMet(id) {
     if (id === '1000m') return Math.max(...Object.values(saveData.best)) >= 1000;
     if (id === 'endless2000') return saveData.best.endless >= 2000;
+    if (id === 'oni1000') return saveData.best.oni >= 1000;
+    if (id === 'oni3000') return saveData.best.oni >= 3000;
     return false;
   }
 
@@ -341,11 +360,23 @@
     }
   }
 
+  function oniModeUnlocked() { return Number(saveData.best.endless || 0) >= 2000; }
+
+  function updateOniModeButton() {
+    if (!oniModeBtn) return;
+    const unlocked = oniModeUnlocked();
+    oniModeBtn.disabled = !unlocked;
+    oniModeBtn.textContent = unlocked
+      ? '👹 鬼むずっ ENDLESS (最初から地獄)'
+      : `🔒 鬼むずっ ENDLESS (ENDLESS ${saveData.best.endless||0}/2000m)`;
+  }
+
   function updateCoinUI() {
     menuCoins.textContent = Math.floor(saveData.coins);
     shopCoins.textContent = Math.floor(saveData.coins);
     resultCoins.textContent = Math.floor(saveData.coins);
     menuSkin.textContent = SKINS[saveData.equippedSkin].name;
+    updateOniModeButton();
   }
 
   function renderShop() {
@@ -408,7 +439,7 @@
       revives: Math.max(0, Math.min(3, Math.floor(Number(payload.revives)||0))),
       at: Date.now()
     };
-    if (scoreMode === 'endless') {
+    if (isDistanceMode(scoreMode)) {
       return { ...common, depth: Math.max(0, Math.floor(Number(payload.depth)||0)) };
     }
     return {
@@ -420,7 +451,7 @@
 
   function isBetterRank(scoreMode, newer, older) {
     if (!older) return true;
-    if (scoreMode === 'endless') return Number(newer.depth) >= Number(older.depth || 0);
+    if (isDistanceMode(scoreMode)) return Number(newer.depth) >= Number(older.depth || 0);
     const oldTime = Number(older.timeMs);
     return !Number.isFinite(oldTime) || Number(newer.timeMs) <= oldTime;
   }
@@ -434,7 +465,7 @@
       if (isBetterRank(scoreMode, row, list[idx])) list[idx] = row;
       else list[idx].name = row.name;
     } else list.push(row);
-    saveData.rankings[scoreMode] = list.sort(scoreMode === 'endless'
+    saveData.rankings[scoreMode] = list.sort(isDistanceMode(scoreMode)
       ? ((a,b)=>b.depth-a.depth || a.at-b.at)
       : ((a,b)=>a.timeMs-b.timeMs || a.at-b.at)
     ).slice(0,RANK_LIMIT);
@@ -443,9 +474,9 @@
 
   async function submitOnlineScore(scoreMode, payload) {
     if (!firebaseEnabled()) return false;
-    if (!['easy','normal','hard','endless'].includes(scoreMode)) return false;
+    if (!['easy','normal','hard','endless','oni'].includes(scoreMode)) return false;
     const row = makeRankRow(scoreMode, payload);
-    const url = `${firebaseBase()}/leaderboard/${scoreMode}/${encodeURIComponent(saveData.playerId)}.json`;
+    const url = `${firebaseBase()}/${LEADERBOARD_ROOT}/${scoreMode}/${encodeURIComponent(saveData.playerId)}.json`;
     try {
       const currentRes = await fetch(url, { cache:'no-store' });
       if (currentRes.ok) {
@@ -472,10 +503,12 @@
         await submitOnlineScore(m, local || {timeMs:t, rawTimeMs:t, revives:0});
       }
     }
-    const d = Number(saveData.best.endless) || 0;
-    if (d > 0) {
-      const local = (saveData.rankings.endless || []).find(r=>r.playerId===saveData.playerId);
-      await submitOnlineScore('endless', local || {depth:d, revives:0});
+    for (const m of ['endless','oni']) {
+      const d = Number(saveData.best[m]) || 0;
+      if (d > 0) {
+        const local = (saveData.rankings[m] || []).find(r=>r.playerId===saveData.playerId);
+        await submitOnlineScore(m, local || {depth:d, revives:0});
+      }
     }
   }
 
@@ -483,11 +516,11 @@
     if (!firebaseEnabled()) return saveData.rankings[rankMode] || [];
     rankingStatus.textContent = '🌐 オンラインランキングを読み込み中…';
     try {
-      const isEndless = rankMode === 'endless';
-      const orderField = isEndless ? 'depth' : 'timeMs';
-      const limitParam = isEndless ? 'limitToLast' : 'limitToFirst';
+      const isDistance = isDistanceMode(rankMode);
+      const orderField = isDistance ? 'depth' : 'timeMs';
+      const limitParam = isDistance ? 'limitToLast' : 'limitToFirst';
       const query = `orderBy=${encodeURIComponent('"'+orderField+'"')}&${limitParam}=${RANK_LIMIT}`;
-      const res = await fetch(`${firebaseBase()}/leaderboard/${rankMode}.json?${query}`, {cache:'no-store'});
+      const res = await fetch(`${firebaseBase()}/${LEADERBOARD_ROOT}/${rankMode}.json?${query}`, {cache:'no-store'});
       if (!res.ok) throw new Error(`ranking fetch failed: ${res.status}`);
       const data = await res.json();
       const rows = Object.values(data || {}).map(r=>({
@@ -499,8 +532,8 @@
         playerId:String(r.playerId||''),
         at:Number(r.at)||0
       }));
-      return rows.filter(r => isEndless ? Number.isFinite(r.depth) : r.timeMs > 0)
-        .sort(isEndless ? ((a,b)=>b.depth-a.depth || a.at-b.at) : ((a,b)=>a.timeMs-b.timeMs || a.at-b.at))
+      return rows.filter(r => isDistance ? Number.isFinite(r.depth) : r.timeMs > 0)
+        .sort(isDistance ? ((a,b)=>b.depth-a.depth || a.at-b.at) : ((a,b)=>a.timeMs-b.timeMs || a.at-b.at))
         .slice(0,RANK_LIMIT);
     } catch (e) {
       rankingStatus.textContent = '⚠️ オンライン取得に失敗。この端末の記録を表示しています。';
@@ -528,11 +561,11 @@
 
   async function renderRanking() {
     document.querySelectorAll('[data-rank-mode]').forEach(b=>b.classList.toggle('active',b.dataset.rankMode===rankingMode));
-    rankingMyBest.textContent = rankingMode === 'endless'
-      ? `${saveData.best.endless||0}m`
+    rankingMyBest.textContent = isDistanceMode(rankingMode)
+      ? `${saveData.best[rankingMode]||0}m`
       : ((saveData.bestTimes[rankingMode]||0) ? formatTime(saveData.bestTimes[rankingMode]) : '--:--.--');
     rankingScope.textContent = firebaseEnabled()
-      ? (rankingMode === 'endless' ? 'みんなの最高到達距離 TOP10' : 'みんなの最速クリア TOP10')
+      ? (isDistanceMode(rankingMode) ? 'みんなの最高到達距離 TOP10' : 'みんなの最速クリア TOP10')
       : 'この端末のTOP10';
     playerNameInput.value = saveData.playerName;
     rankingList.innerHTML = '<div class="ranking-status">読み込み中…</div>';
@@ -544,7 +577,7 @@
       rows.forEach((r,i)=>{
         const el=document.createElement('div');
         el.className=`rank-row${r.playerId===saveData.playerId?' me':''}`;
-        const scoreText = rankingMode === 'endless'
+        const scoreText = isDistanceMode(rankingMode)
           ? `${r.depth}m`
           : `${formatTime(r.timeMs)}${r.revives ? ` (+${r.revives*5}s)` : ''}`;
         el.innerHTML=`<div class="rank-pos">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-name"></div><div class="rank-score">${scoreText}</div>`;
@@ -552,8 +585,8 @@
         rankingList.appendChild(el);
       });
     }
-    if (firebaseEnabled()) rankingStatus.textContent = rankingMode === 'endless'
-      ? '✅ ONLINE / ENDLESSは最高到達距離ランキング'
+    if (firebaseEnabled()) rankingStatus.textContent = isDistanceMode(rankingMode)
+      ? `✅ ONLINE / ${rankingMode==='oni'?'鬼むずっ':'ENDLESS'}は最高到達距離ランキング`
       : '✅ ONLINE / クリアタイム＋復活1回につき5秒';
     else rankingStatus.textContent = '🔧 オンライン未設定。Firebase Database URLをコードに1行貼れば有効になります。';
   }
@@ -569,7 +602,7 @@
   function savePlayerName() {
     saveData.playerName = cleanPlayerName(playerNameInput.value);
     playerNameInput.value = saveData.playerName;
-    for (const m of ['easy','normal','hard','endless']) {
+    for (const m of ['easy','normal','hard','endless','oni']) {
       const list=saveData.rankings && saveData.rankings[m]; if (!Array.isArray(list)) continue;
       list.forEach(r=>{ if(r.playerId===saveData.playerId) r.name=saveData.playerName; });
     }
@@ -652,6 +685,8 @@
   let levelBannerTimer = 0;
   let screenShake = 0;
   let taraiCooldown = 0;
+  let mudBallCooldown = 0;
+  let risingSwampY = Infinity;
   let lastRunWasNewRecord = false;
   let stageLevel = 1;
   let previousStageLevel = 1;
@@ -665,11 +700,12 @@
     x: 0, y: 0, vx: 0, vy: 0, radius: 10,
     jumpCount: 0, maxJumps: 2,
     slideUsed: false,
-    invincible: 0, mudTimer: 0, mudTouchCooldown: 0
+    invincible: 0, mudTimer: 0, mudTouchCooldown: 0, slipperyTimer: 0
   };
 
   let platforms = [];
   let basins = [];
+  let mudBalls = [];
   let coins = [];
   let particles = [];
   let bubbles = [];
@@ -691,49 +727,65 @@
   function currentRankRunMs() { return currentRawRunMs() + reviveCount * 5000; }
   function bestTimeFor(m = mode) { return Number(saveData.bestTimes && saveData.bestTimes[m]) || 0; }
 
-  // Ver.2.5.3: 足場密度を下げ、横スラ前提でも緊張感が残るよう再調整
+  // Ver.3.0: 4モードを再設計。距離・テンポ・複合ギミックを段階的に増やす。
   function getStageInfo(currentMode = mode, d = depth) {
     if (currentMode === 'easy') {
-      if (d < 250) return { level:1, name:'足慣らし', width:[68,84], shift:42, risk:.08, gap:78, move:[1.4,2.2], bomb:false, swamp:.35, vanish:.15, moving:.28, vanishFrames:9, tarai:false };
-      if (d < 500) return { level:2, name:'ぬかるみ', width:[62,78], shift:49, risk:.14, gap:82, move:[1.8,2.8], bomb:false, swamp:.48, vanish:.16, moving:.30, vanishFrames:8, tarai:false };
-      if (d < 750) return { level:3, name:'消える足場', width:[56,72], shift:56, risk:.22, gap:86, move:[2.2,3.4], bomb:false, swamp:.44, vanish:.30, moving:.26, vanishFrames:6, tarai:false };
-      return { level:4, name:'イージー最深部', width:[50,66], shift:63, risk:.30, gap:90, move:[2.8,4.0], bomb:false, swamp:.44, vanish:.28, moving:.28, vanishFrames:5, tarai:false };
+      if (d < 300)  return { level:1, name:'まだ親切', width:[68,84], shift:42, risk:.06, gap:80, move:[1.4,2.1], bomb:false, swamp:.24, vanish:.10, moving:.22, vanishFrames:10, tarai:false, crumble:0, slippery:0, fastMoving:0, fake:0, chainChance:0, jumpSpeed:.94 };
+      if (d < 600)  return { level:2, name:'ちょい沼', width:[64,80], shift:48, risk:.10, gap:84, move:[1.7,2.6], bomb:false, swamp:.38, vanish:.14, moving:.26, vanishFrames:9, tarai:false, crumble:0, slippery:0, fastMoving:.03, fake:0, chainChance:.01, jumpSpeed:1.00 };
+      if (d < 900)  return { level:3, name:'床が信用できない', width:[58,74], shift:54, risk:.15, gap:88, move:[2.1,3.2], bomb:false, swamp:.42, vanish:.25, moving:.25, vanishFrames:7, tarai:false, crumble:.04, slippery:0, fastMoving:.06, fake:0, chainChance:.03, jumpSpeed:1.07 };
+      if (d < 1200) return { level:4, name:'急に忙しい', width:[54,70], shift:60, risk:.20, gap:91, move:[2.6,3.8], bomb:false, swamp:.40, vanish:.30, moving:.25, vanishFrames:6, tarai:false, crumble:.07, slippery:0, fastMoving:.09, fake:0, chainChance:.05, jumpSpeed:1.13 };
+      return              { level:5, name:'イージーとは？', width:[50,66], shift:64, risk:.26, gap:94, move:[3.0,4.2], bomb:false, swamp:.42, vanish:.30, moving:.25, vanishFrames:5, tarai:false, crumble:.10, slippery:0, fastMoving:.12, fake:0, chainChance:.07, jumpSpeed:1.18 };
     }
     if (currentMode === 'normal') {
-      if (d < 250) return { level:1, name:'基本区間', width:[66,82], shift:46, risk:.10, gap:80, move:[1.6,2.5], bomb:false, swamp:.34, vanish:.18, moving:.28, vanishFrames:9, tarai:false };
-      if (d < 500) return { level:2, name:'沼＋移動床', width:[60,76], shift:53, risk:.18, gap:84, move:[2.0,3.2], bomb:false, swamp:.46, vanish:.20, moving:.30, vanishFrames:8, tarai:false };
-      if (d < 750) return { level:3, name:'爆弾解禁', width:[56,72], shift:58, risk:.28, gap:88, move:[2.4,3.6], bomb:true, swamp:.33, vanish:.20, moving:.22, bombWeight:.25, vanishFrames:7, tarai:false };
-      if (d < 1000) return { level:4, name:'高速ギミック', width:[50,68], shift:64, risk:.34, gap:90, move:[3.0,4.4], bomb:true, swamp:.30, vanish:.25, moving:.22, bombWeight:.30, vanishFrames:5, tarai:false };
-      if (d < 1200) return { level:5, name:'タライ解禁', width:[50,66], shift:66, risk:.38, gap:92, move:[3.1,4.5], bomb:true, swamp:.30, vanish:.23, moving:.20, bombWeight:.32, vanishFrames:5, tarai:true, taraiChance:.0028, taraiWarning:50, pairChance:0, predictive:false };
-      return { level:6, name:'複合沼地', width:[46,64], shift:70, risk:.50, gap:92, move:[3.4,4.8], bomb:true, swamp:.34, vanish:.20, moving:.18, bombWeight:.36, vanishFrames:4, tarai:true, taraiChance:.0042, taraiWarning:42, pairChance:.28, predictive:true };
+      if (d < 400)  return { level:1, name:'平常運転', width:[66,82], shift:46, risk:.08, gap:82, move:[1.6,2.5], bomb:false, swamp:.28, vanish:.14, moving:.24, vanishFrames:10, tarai:false, crumble:0, slippery:0, fastMoving:0, fake:0, chainChance:0, jumpSpeed:.98 };
+      if (d < 800)  return { level:2, name:'沼、仕事開始', width:[61,77], shift:53, risk:.14, gap:86, move:[2.0,3.2], bomb:false, swamp:.44, vanish:.18, moving:.28, vanishFrames:8, tarai:false, crumble:.03, slippery:0, fastMoving:.04, fake:0, chainChance:.02, jumpSpeed:1.05 };
+      if (d < 1200) return { level:3, name:'爆弾とか聞いてない', width:[56,72], shift:60, risk:.22, gap:90, move:[2.5,3.7], bomb:true, swamp:.32, vanish:.18, moving:.22, bombWeight:.26, vanishFrames:7, tarai:false, crumble:.07, slippery:0, fastMoving:.07, fake:0, chainChance:.04, jumpSpeed:1.12 };
+      if (d < 1600) return { level:4, name:'床が仕事しない', width:[51,68], shift:66, risk:.29, gap:93, move:[3.0,4.4], bomb:true, swamp:.30, vanish:.28, moving:.22, bombWeight:.30, vanishFrames:5, tarai:false, crumble:.11, slippery:.02, fastMoving:.11, fake:.015, chainChance:.07, jumpSpeed:1.20 };
+      if (d < 2000) return { level:5, name:'タライ係出勤', width:[49,65], shift:69, risk:.35, gap:95, move:[3.2,4.7], bomb:true, swamp:.31, vanish:.24, moving:.20, bombWeight:.32, vanishFrames:5, tarai:true, taraiChance:.0030, taraiWarning:52, pairChance:.06, predictive:false, giantChance:0, feintChance:0, mudBallChance:0, risingSwampSpeed:0, crumble:.10, slippery:.035, fastMoving:.12, fake:.02, chainChance:.09, jumpSpeed:1.27 };
+      return              { level:6, name:'全部盛り', width:[46,63], shift:73, risk:.43, gap:97, move:[3.5,5.0], bomb:true, swamp:.34, vanish:.22, moving:.18, bombWeight:.35, vanishFrames:4, tarai:true, taraiChance:.0042, taraiWarning:44, pairChance:.24, predictive:true, giantChance:.025, feintChance:.02, mudBallChance:0, risingSwampSpeed:0, crumble:.12, slippery:.05, fastMoving:.14, fake:.03, chainChance:.12, jumpSpeed:1.34 };
     }
     if (currentMode === 'hard') {
-      const lv = Math.min(4, 1 + Math.floor(d / 500));
+      const lv = Math.min(6, 1 + Math.floor(d / 500));
       const data = [
-        { width:[56,70], shift:60, risk:.34, gap:88, move:[2.8,4.0], warning:40, pair:.06, pred:false, chance:.0038 },
-        { width:[52,68], shift:65, risk:.42, gap:90, move:[3.1,4.4], warning:36, pair:.16, pred:true, chance:.0042 },
-        { width:[48,64], shift:70, risk:.50, gap:92, move:[3.5,4.9], warning:32, pair:.30, pred:true, chance:.0048 },
-        { width:[44,62], shift:74, risk:.56, gap:94, move:[3.8,5.2], warning:29, pair:.42, pred:true, chance:.0053 }
+        {name:'開始3秒で後悔', width:[56,70], shift:60, risk:.28, gap:89, move:[2.8,4.0], warning:43, pair:.04, pred:false, chance:.0035, speed:1.08},
+        {name:'タライ係出勤', width:[53,68], shift:65, risk:.34, gap:92, move:[3.1,4.4], warning:39, pair:.10, pred:true,  chance:.0039, speed:1.16},
+        {name:'2連は聞いてない', width:[50,66], shift:69, risk:.40, gap:94, move:[3.4,4.8], warning:35, pair:.22, pred:true,  chance:.0044, speed:1.24},
+        {name:'床も敵', width:[47,63], shift:73, risk:.46, gap:96, move:[3.7,5.1], warning:32, pair:.30, pred:true,  chance:.0049, speed:1.32},
+        {name:'地獄の手前', width:[45,61], shift:76, risk:.51, gap:98, move:[4.0,5.4], warning:29, pair:.38, pred:true,  chance:.0054, speed:1.40},
+        {name:'帰れ', width:[43,59], shift:79, risk:.56, gap:100, move:[4.2,5.7], warning:27, pair:.46, pred:true,  chance:.0059, speed:1.47}
       ][lv-1];
-      return { level:lv, name:['ハード入口','先読み開始','2連タライ','地獄'][lv-1], width:data.width, shift:data.shift, risk:data.risk, gap:data.gap, move:data.move, bomb:true, swamp:.28, vanish:.20, moving:.18, bombWeight:.34, vanishFrames:5, tarai:true, taraiChance:data.chance, taraiWarning:data.warning, pairChance:data.pair, predictive:data.pred };
+      return { level:lv, name:data.name, width:data.width, shift:data.shift, risk:data.risk, gap:data.gap, move:data.move, bomb:true, swamp:.31, vanish:.23, moving:.19, bombWeight:.36, vanishFrames:Math.max(3,6-Math.floor(lv/2)), crumble:.06+lv*.018, slippery:lv>=2?.03+lv*.012:0, fastMoving:.04+lv*.018, fake:lv>=4?.025+(lv-4)*.018:0, tarai:true, taraiChance:data.chance, taraiWarning:data.warning, pairChance:data.pair, predictive:data.pred, giantChance:lv>=4?.04+(lv-4)*.035:0, feintChance:lv>=3?.025+(lv-3)*.014:0, mudBallChance:lv>=4?.0007+(lv-4)*.00035:0, risingSwampSpeed:0, chainChance:.05+lv*.035, jumpSpeed:data.speed };
+    }
+    if (currentMode === 'oni') {
+      const lv = 1 + Math.floor(d / 500);
+      const c = Math.min(lv, 9);
+      return {
+        level:lv, name:`鬼むず Lv.${lv}`,
+        width:[Math.max(37,50-c), Math.max(52,64-c*.7)], shift:Math.min(91,74+c*2.1),
+        risk:Math.min(.72,.45+c*.032), gap:Math.min(106,96+c*1.25), move:[3.8+c*.20,5.2+c*.25],
+        bomb:true, swamp:.30, vanish:.20, moving:.16, bombWeight:.38, vanishFrames:Math.max(2,4-Math.floor(c/4)),
+        crumble:Math.min(.24,.12+c*.015), slippery:Math.min(.19,.07+c*.014), fastMoving:Math.min(.22,.11+c*.014), fake:Math.min(.13,.035+c*.012),
+        tarai:true, taraiChance:Math.min(.0082,.0046+c*.00042), taraiWarning:Math.max(20,32-c*1.25),
+        pairChance:Math.min(.62,.10+c*.075), predictive:true, giantChance:d>=1000?Math.min(.18,.06+c*.018):.02, feintChance:Math.min(.11,.03+c*.010),
+        mudBallChance:d>=500?Math.min(.0030,.0008+c*.00028):.0005, risingSwampSpeed:d>=1000?Math.min(.28,.10+c*.022):0,
+        chainChance:Math.min(.42,.14+c*.036), jumpSpeed:Math.min(1.58,1.31+(lv-1)*.045)
+      };
     }
     const lv = 1 + Math.floor(d / 500);
-    const capped = Math.min(lv, 8);
-    return { level:lv, name:`泥沼 Lv.${lv}`, width:[Math.max(42,60-capped*2), Math.max(58,74-capped)], shift:Math.min(78,56+capped*3), risk:Math.min(.62,.32+capped*.04), gap:Math.min(98,86+capped*2), move:[2.6+capped*.18,4.0+capped*.24], bomb:true, swamp:.28, vanish:.20, moving:.18, bombWeight:Math.min(.42,.30+capped*.015), vanishFrames:Math.max(3,6-Math.floor(capped/3)), tarai:true, taraiChance:Math.min(.0065,.0028+capped*.00045), taraiWarning:Math.max(26,42-capped*2), pairChance:Math.min(.48,.08+capped*.055), predictive:lv >= 2 };
+    const capped = Math.min(lv, 10);
+    return { level:lv, name:`泥沼 Lv.${lv}`, width:[Math.max(40,60-capped*2), Math.max(56,74-capped)], shift:Math.min(82,55+capped*3), risk:Math.min(.60,.25+capped*.035), gap:Math.min(102,87+capped*1.8), move:[2.6+capped*.20,4.0+capped*.26], bomb:true, swamp:.31, vanish:.22, moving:.19, bombWeight:Math.min(.42,.30+capped*.012), vanishFrames:Math.max(3,6-Math.floor(capped/3)), crumble:Math.min(.18,.03+capped*.014), slippery:Math.min(.13,Math.max(0,capped-2)*.016), fastMoving:Math.min(.18,.03+capped*.016), fake:Math.min(.08,Math.max(0,capped-3)*.012), tarai:true, taraiChance:Math.min(.0064,.0027+capped*.00038), taraiWarning:Math.max(26,44-capped*1.7), pairChance:Math.min(.48,.06+capped*.048), predictive:lv >= 2, giantChance:lv>=4?Math.min(.12,(lv-3)*.018):0, feintChance:lv>=3?Math.min(.08,(lv-2)*.012):0, mudBallChance:lv>=4?Math.min(.0020,(lv-3)*.00022):0, risingSwampSpeed:lv>=5?Math.min(.20,.06+(lv-5)*.018):0, chainChance:Math.min(.30,.04+capped*.026), jumpSpeed:Math.min(1.50,1.02+(lv-1)*.06) };
   }
 
   function stageLevelDescription(info) {
-    if (mode === 'easy' && info.level === 2) return '沼・移動床が増えた！';
-    if (mode === 'easy' && info.level === 3) return '消える床が本気を出した！';
-    if (mode === 'easy' && info.level === 4) return '足場が狭い！横スラ推奨！';
-    if (mode === 'normal' && info.level === 3) return '💣 爆弾解禁！';
-    if (mode === 'normal' && info.level === 4) return '足場高速化＋狭小化！';
-    if (mode === 'normal' && info.level === 5) return '🪣 タライ解禁！';
-    if (mode === 'normal' && info.level === 6) return '☣️ タライ＋爆弾＋沼！';
+    if (mode === 'easy') return ['まだゲームです','沼が起きた','床が怪しい','手が忙しい','イージーとは？'][info.level-1] || info.name;
+    if (mode === 'normal') return ['まだ普通','沼が本気','💣 爆弾解禁','消える床がサボる','🪣 タライ係出勤','☣️ 全部盛り'][info.level-1] || info.name;
     if (mode === 'hard') return `🔥 ${info.name}`;
-    if (mode === 'endless') return `☣️ ${info.name}`;
+    if (mode === 'endless') return info.level % 5 === 0 ? `☣️ 泥沼 Lv.${info.level}　まだやるの？` : `☣️ ${info.name}`;
+    if (mode === 'oni') return info.level % 4 === 0 ? `👹 ${info.name}　まだ生きてる？` : `👹 ${info.name}`;
     return info.name;
   }
+
+  function getJumpSpeed(){ return Math.max(.9, Number(getStageInfo().jumpSpeed)||1); }
 
   function addCoins(amount, label = '') {
     const n = Math.max(0, Math.floor(amount));
@@ -748,13 +800,15 @@
   function startGame(selectedMode) {
     initAudio();
     if (animId) cancelAnimationFrame(animId);
+    if (selectedMode === 'oni' && !oniModeUnlocked()) { updateOniModeButton(); return; }
     mode = selectedMode;
-    targetDepth = mode === 'easy' ? 1000 : mode === 'normal' ? 1400 : mode === 'hard' ? 2000 : Infinity;
-    depth = 0; runEarned = 0; reviveCount = 0; lastRewardDepth = 0; clearState = false; taraiCooldown = 70; lastRunWasNewRecord = false;
+    targetDepth = mode === 'easy' ? 1500 : mode === 'normal' ? 2200 : mode === 'hard' ? 3000 : Infinity;
+    depth = 0; runEarned = 0; reviveCount = 0; lastRewardDepth = 0; clearState = false; taraiCooldown = 70; mudBallCooldown = 80; lastRunWasNewRecord = false;
+    risingSwampY = canvas.height + 90;
     activeRunMs = 0; runClockStartedAt = 0; finalRawTimeMs = 0; finalRankTimeMs = 0;
     isPlaying = true; menuOverlay.classList.add('hidden'); shopOverlay.classList.add('hidden'); resultOverlay.classList.add('hidden'); rankingOverlay.classList.add('hidden');
-    player.x = canvas.width/2; player.y = canvas.height-120; player.vx = 0; player.vy = 0; player.jumpCount = 0; player.slideUsed = false; player.invincible = 0; player.mudTimer = 0; player.mudTouchCooldown = 0;
-    routeCenterX = canvas.width/2; platforms = []; basins = []; coins = []; particles = []; bubbles = []; nextPlatformId = 1;
+    player.x = canvas.width/2; player.y = canvas.height-120; player.vx = 0; player.vy = 0; player.jumpCount = 0; player.slideUsed = false; player.invincible = 0; player.mudTimer = 0; player.mudTouchCooldown = 0; player.slipperyTimer = 0;
+    routeCenterX = canvas.width/2; platforms = []; basins = []; mudBalls = []; coins = []; particles = []; bubbles = []; nextPlatformId = 1;
     stageLevel = getStageInfo().level; previousStageLevel = stageLevel;
     const startPlatform = createPlatform(canvas.width/2-45, canvas.height-60, 90, 'normal', 0, 10);
     platforms.push(startPlatform);
@@ -772,21 +826,22 @@
   }
 
   function createPlatform(x,y,w,type,vx=0,vanishFrames=6) {
-    return { id:nextPlatformId++, x,y,w,h:12,type,vx,timer:0,broken:false,landed:false,vanishFrames, mudPulse:Math.random()*10 };
+    return { id:nextPlatformId++, x,y,w,h:12,type,vx,timer:0,broken:false,landed:false,vanishFrames, mudPulse:Math.random()*10, crumbleTimer:-1, revealed:false, fakeKind:Math.random()<.5?'crumble':'slippery' };
   }
 
   function chooseSafeType(info) {
-    const r = Math.random();
-    if (info.level >= 2 && r < .12) return 'swamp';
-    if (r < .12 + info.moving) return 'moving';
-    if (r < .12 + info.moving + info.vanish*.55) return 'vanish';
+    const entries = [['swamp',info.level>=2?.12:0],['moving',info.moving||0],['movingFast',info.fastMoving||0],['vanish',(info.vanish||0)*.55],['crumble',info.crumble||0],['slippery',info.slippery||0],['fake',info.fake||0]];
+    const total = entries.reduce((a,x)=>a+x[1],0);
+    const normalWeight = Math.max(.18,1-total);
+    let r=Math.random()*(total+normalWeight);
+    for(const [type,w] of entries){r-=w;if(r<=0)return type;}
     return 'normal';
   }
 
   function chooseRiskType(info) {
     const weights = [];
     if (info.bomb) weights.push(['bomb', info.bombWeight || .3]);
-    weights.push(['swamp', info.swamp || .3], ['moving', info.moving || .2], ['vanish', info.vanish || .2]);
+    weights.push(['swamp', info.swamp || .3], ['moving', info.moving || .2], ['movingFast', info.fastMoving || 0], ['vanish', info.vanish || .2], ['crumble', info.crumble || 0], ['slippery', info.slippery || 0], ['fake', info.fake || 0]);
     const total = weights.reduce((s,x)=>s+x[1],0);
     let r = Math.random()*total;
     for (const [type,w] of weights) { r -= w; if (r <= 0) return type; }
@@ -800,8 +855,12 @@
     routeCenterX = clamp(routeCenterX + rand(-info.shift, info.shift), 38, canvas.width-38);
     const safeX = clamp(routeCenterX-safeW/2, 7, canvas.width-safeW-7);
     routeCenterX = safeX + safeW/2;
-    const safeType = chooseSafeType(info);
-    const safeVx = safeType === 'moving' ? (Math.random()<.5?-1:1)*rand(info.move[0],info.move[1]) : 0;
+    let safeType = chooseSafeType(info);
+    if (Math.random() < (info.chainChance||0) && info.level>=3) {
+      const chainTypes=['crumble','movingFast','slippery'].filter(t=>(t==='crumble'&&(info.crumble||0)>0)||(t==='movingFast'&&(info.fastMoving||0)>0)||(t==='slippery'&&(info.slippery||0)>0));
+      if(chainTypes.length) safeType=chainTypes[Math.floor(Math.random()*chainTypes.length)];
+    }
+    const safeVx = (safeType === 'moving' || safeType === 'movingFast') ? (Math.random()<.5?-1:1)*rand(info.move[0],info.move[1])*(safeType==='movingFast'?1.48:1) : 0;
     const safe = createPlatform(safeX,yPos,safeW,safeType,safeVx,info.vanishFrames);
     platforms.push(safe);
     if (Math.random() < .38) spawnCoinAbove(safe,5);
@@ -814,7 +873,7 @@
       else riskX = rand(Math.min(canvas.width-riskW-7,safeX+safeW+18), canvas.width-riskW-7);
       riskX = clamp(riskX,7,canvas.width-riskW-7);
       const riskType = chooseRiskType(info);
-      const riskVx = riskType === 'moving' ? (Math.random()<.5?-1:1)*rand(info.move[0]+.3,info.move[1]+.7) : 0;
+      const riskVx = (riskType === 'moving' || riskType === 'movingFast') ? (Math.random()<.5?-1:1)*rand(info.move[0]+.3,info.move[1]+.7)*(riskType==='movingFast'?1.5:1) : 0;
       const risk = createPlatform(riskX,yPos+rand(-14,14),riskW,riskType,riskVx,Math.max(3,info.vanishFrames-1));
       platforms.push(risk);
       spawnCoinAbove(risk, riskType === 'bomb' ? 15 : (riskType === 'swamp' ? 12 : 10));
@@ -828,8 +887,9 @@
     initAudio();
     if (player.jumpCount < player.maxJumps) {
       const muddy = player.mudTimer > 0;
-      player.vy = muddy ? -11.6 : -13.5;
-      player.vx = dir * (muddy ? 4.8 : 6.1);
+      const js = getJumpSpeed();
+      player.vy = (muddy ? -11.6 : -13.5) * js;
+      player.vx = dir * (muddy ? 4.8 : 6.1) * js;
       playSound(player.jumpCount===0?'jump':'jump2');
       player.jumpCount++;
     }
@@ -841,7 +901,7 @@
     if (!airborne) return false;
     player.slideUsed = true;
     const muddy = player.mudTimer > 0;
-    player.vx = dir * (muddy ? 9.5 : 13.1);
+    player.vx = dir * (muddy ? 9.5 : 13.1) * Math.min(1.18, getJumpSpeed());
     player.vy *= .86;
     playSound('slide');
     showFlash(muddy ? '💨 泥でスライドが重い！' : '💨 沼回避！', 28);
@@ -888,13 +948,16 @@
     resultOverlay.classList.add('hidden'); shopOverlay.classList.add('hidden'); rankingOverlay.classList.add('hidden'); menuOverlay.classList.remove('hidden');
     refreshUnlocks(false); updateCoinUI();
   }
-  function currentReviveCost(){return REVIVE_COSTS[Math.min(reviveCount,REVIVE_COSTS.length-1)];}
+  function currentReviveCost(){
+    const costs=mode==='oni'?[100,300,600]:REVIVE_COSTS;
+    return costs[Math.min(reviveCount,costs.length-1)];
+  }
   function reviveFromCheckpoint(){
     if(clearState||reviveCount>=REVIVE_COSTS.length||!checkpoint)return;
     const cost=currentReviveCost(); if(saveData.coins<cost)return;
     let cp=platforms.find(x=>x.id===checkpoint.platformId&&!x.broken);
     if(!cp){
-      cp=platforms.filter(x=>!x.broken&&x.type!=='bomb'&&x.type!=='swamp'&&x.y<canvas.height-40).sort((a,b)=>b.y-a.y)[0];
+      cp=platforms.filter(x=>!x.broken&&['normal','moving','movingFast'].includes(x.type)&&x.y<canvas.height-40).sort((a,b)=>b.y-a.y)[0];
       if(!cp)return; checkpoint={platformId:cp.id,depth,xOffset:cp.w/2};
     }
     saveData.coins-=cost; persist(); reviveCount++;
@@ -902,34 +965,81 @@
     basins=basins.filter(b=>Math.abs((b.x+15)-player.x)>90||Math.abs(b.y-player.y)>180);
     resultOverlay.classList.add('hidden'); isPlaying=true; startRunClock(); playSound('revive'); showFlash(`✨ 復活！ ${isTimeMode(mode)?'+5秒ペナルティ / ':''}2秒無敵`,70); loop();
   }
-  function maybeSetCheckpoint(platform){ if(platform.type!=='normal'&&platform.type!=='moving')return; checkpoint={platformId:platform.id,depth,xOffset:clamp(player.x-platform.x,10,platform.w-10)}; }
+  function maybeSetCheckpoint(platform){ if(!['normal','moving','movingFast'].includes(platform.type))return; checkpoint={platformId:platform.id,depth,xOffset:clamp(player.x-platform.x,10,platform.w-10)}; }
 
-  function spawnTarai(kind='normal',extraWarning=0){
+  function spawnTarai(kind='normal',extraWarning=0,forcePredict=false){
     const info=getStageInfo();
+    const giant=kind==='giant';
+    const feint=kind==='feint';
+    const w=giant?62:30, h=giant?22:15;
     let aimX=player.x;
-    if(kind==='predict' || (info.predictive && Math.random()<.55)) aimX += player.vx*10 + (player.slideUsed ? player.vx*3 : 0);
-    const spread = mode==='hard' ? 42 : mode==='normal' ? 50 : 46;
-    const x=clamp(aimX-15+rand(-spread,spread),3,canvas.width-33);
-    basins.push({x,y:-34,vy:mode==='hard'?rand(7.5,9.1):rand(6.9,8.6),warning:(info.taraiWarning||40)+extraWarning,active:false,nearMissAwarded:false,passedPlayer:false});
+    if(forcePredict || info.predictive) aimX += player.vx*(giant?7:10) + (player.slideUsed ? player.vx*2.5 : 0);
+    const spread = mode==='oni' ? 33 : mode==='hard' ? 42 : mode==='normal' ? 50 : 46;
+    const x=clamp(aimX-w/2+rand(-spread,spread),3,canvas.width-w-3);
+    const speedBase=mode==='oni'?rand(8.5,10.4):mode==='hard'?rand(7.5,9.1):rand(6.9,8.6);
+    basins.push({x,y:-h-20,w,h,vy:giant?speedBase*.92:speedBase,warning:(info.taraiWarning||40)+extraWarning,active:false,nearMissAwarded:false,passedPlayer:false,giant,feint,done:false});
   }
 
   function updateTarai(){
     const info=getStageInfo();
     if(taraiCooldown>0)taraiCooldown--;
     if(info.tarai && taraiCooldown<=0 && Math.random()<(info.taraiChance||0)){
-      spawnTarai(info.predictive?'predict':'normal');
-      if(Math.random()<(info.pairChance||0)) spawnTarai(info.predictive?'predict':'normal',rand(10,20));
-      taraiCooldown = mode==='normal' ? 95 : mode==='hard' ? 74 : 82;
+      let kind='normal';
+      const r=Math.random();
+      if(r<(info.feintChance||0)) kind='feint';
+      else if(r<(info.feintChance||0)+(info.giantChance||0)) kind='giant';
+      spawnTarai(kind,0,!!info.predictive && Math.random()<.62);
+      if(Math.random()<(info.pairChance||0)) spawnTarai('normal',rand(9,18),true);
+      taraiCooldown = mode==='normal' ? 95 : mode==='hard' ? 74 : mode==='oni' ? 56 : 82;
     }
     basins.forEach(b=>{
-      if(!isPlaying)return;
-      if(!b.active){b.warning--;if(b.warning<=0)b.active=true;return;}
+      if(!isPlaying||b.done)return;
+      if(!b.active){
+        b.warning--;
+        if(b.warning<=0){
+          if(b.feint){b.done=true;showFlash('🪣 ……来ないんかい！',34);return;}
+          b.active=true;
+        }
+        return;
+      }
       b.y+=b.vy;
-      const cx=b.x+15,cy=b.y+7,dx=Math.abs(player.x-cx),dy=Math.abs(player.y-cy);
-      if(player.invincible<=0&&dx<18&&dy<20){playSound('tarai');screenShake=14;endRun('🪣 金タライ直撃！');return;}
-      if(!b.passedPlayer&&cy>player.y+18){b.passedPlayer=true;if(!b.nearMissAwarded&&dx>=18&&dx<48){b.nearMissAwarded=true;addCoins(10,'危機一髪');screenShake=5;}}
+      const cx=b.x+b.w/2,cy=b.y+b.h/2,dx=Math.abs(player.x-cx),dy=Math.abs(player.y-cy);
+      const hitX=b.giant?34:18, hitY=b.giant?25:20;
+      if(player.invincible<=0&&dx<hitX&&dy<hitY){playSound('tarai');screenShake=b.giant?20:14;endRun(b.giant?'🪣💥 巨大タライ直撃！':'🪣 金タライ直撃！');return;}
+      if(!b.passedPlayer&&cy>player.y+20){b.passedPlayer=true;if(!b.nearMissAwarded&&dx>=hitX&&dx<hitX+32){b.nearMissAwarded=true;addCoins(b.giant?18:10,'危機一髪');screenShake=5;}}
     });
-    basins=basins.filter(b=>!b.active||b.y<canvas.height+60);
+    basins=basins.filter(b=>!b.done&&(!b.active||b.y<canvas.height+70));
+  }
+
+  function spawnMudBall(){
+    const info=getStageInfo();
+    const side=Math.random()<.5?'left':'right';
+    const y=clamp(player.y+rand(-85,85),80,canvas.height-100);
+    const speed=(mode==='oni'?rand(7.2,9.2):rand(5.8,7.6));
+    mudBalls.push({side,y,x:side==='left'?-18:canvas.width+18,vx:side==='left'?speed:-speed,r:9,warning:22,active:false,near:false});
+    mudBallCooldown=mode==='oni'?55:78;
+  }
+
+  function updateMudBalls(){
+    const info=getStageInfo();
+    if(mudBallCooldown>0)mudBallCooldown--;
+    if((info.mudBallChance||0)>0 && mudBallCooldown<=0 && Math.random()<(info.mudBallChance||0)) spawnMudBall();
+    mudBalls.forEach(m=>{
+      if(!m.active){m.warning--;if(m.warning<=0)m.active=true;return;}
+      m.x+=m.vx;
+      const dist=Math.hypot(player.x-m.x,player.y-m.y);
+      if(player.invincible<=0&&dist<player.radius+m.r+2){screenShake=10;playSound('mud');endRun('🟤 泥玉を顔面にくらった！');return;}
+      if(!m.near && Math.abs(m.x-player.x)<28 && Math.abs(m.y-player.y)<28){m.near=true;addCoins(6,'泥玉回避');}
+    });
+    mudBalls=mudBalls.filter(m=>m.x>-45&&m.x<canvas.width+45);
+  }
+
+  function updateRisingSwamp(){
+    const info=getStageInfo();
+    const speed=Number(info.risingSwampSpeed)||0;
+    if(speed<=0){risingSwampY=canvas.height+90;return;}
+    risingSwampY-=speed;
+    if(player.invincible<=0 && player.y+18>=risingSwampY){screenShake=12;endRun('☣️ 下から迫る沼に飲まれた！');}
   }
 
   function splashMud(x,y){
@@ -939,11 +1049,26 @@
   }
 
   function handlePlatformCollisions(){
+    const info=getStageInfo();
     platforms.forEach(p=>{
       if(p.broken||!isPlaying)return;
-      if(p.type==='moving'){p.x+=p.vx;if(p.x<5||p.x+p.w>canvas.width-5){p.vx*=-1;p.x=clamp(p.x,5,canvas.width-p.w-5);}}
+      if(p.type==='moving'||p.type==='movingFast'){
+        p.x+=p.vx;
+        if(p.x<5||p.x+p.w>canvas.width-5){p.vx*=-1;p.x=clamp(p.x,5,canvas.width-p.w-5);}
+      }
+      if(p.type==='crumble' && p.crumbleTimer>=0){
+        p.crumbleTimer--;
+        if(p.crumbleTimer<=0){p.broken=true;return;}
+      }
       const landing=player.vy>=0&&player.x+player.radius>p.x&&player.x-player.radius<p.x+p.w&&player.y+player.radius>=p.y&&player.y-player.radius<p.y+p.h+4;
       if(!landing)return;
+
+      if(p.type==='fake'&&!p.revealed){
+        p.revealed=true;p.type=p.fakeKind;p.landed=false;
+        showFlash(p.type==='crumble'?'❓ ニセ床！崩れる！':'❓ ニセ床！ぬるぬる！',38);
+        screenShake=3;
+      }
+
       if(p.type==='bomb'){
         const margin=12;
         if(player.x>p.x+margin&&player.x<p.x+p.w-margin&&player.invincible<=0){p.broken=true;playSound('bomb');screenShake=16;endRun('💣 爆弾を踏んで爆死！');return;}
@@ -956,9 +1081,13 @@
         player.y=p.y-player.radius+6; player.vy=0; player.vx*=.35; player.jumpCount=0; player.slideUsed=false;
         player.mudTimer=Math.max(player.mudTimer,82);
         if(firstLanding||player.mudTouchCooldown<=0){splashMud(player.x,p.y);player.mudTouchCooldown=28;showFlash('🟫 ズブッ！ 泥状態',45);}
+      } else if(p.type==='slippery'){
+        player.y=p.y-player.radius;player.vy=0;player.vx=clamp(player.vx*1.12,-9,9);player.jumpCount=0;player.slideUsed=false;player.slipperyTimer=Math.max(player.slipperyTimer,48);
+        if(firstLanding)showFlash('🧼 ぬるぬる！止まれない！',35);
       } else {
-        player.y=p.y-player.radius; player.vy=0; player.vx=p.type==='moving'?p.vx:0; player.jumpCount=0; player.slideUsed=false; maybeSetCheckpoint(p);
+        player.y=p.y-player.radius; player.vy=0; player.vx=(p.type==='moving'||p.type==='movingFast')?p.vx:0; player.jumpCount=0; player.slideUsed=false; maybeSetCheckpoint(p);
         if(p.type==='vanish'){p.timer++;if(p.timer>p.vanishFrames)p.broken=true;}
+        if(p.type==='crumble'&&p.crumbleTimer<0){p.crumbleTimer=mode==='oni'?22:mode==='hard'?28:34;showFlash('🪨 ミシッ…！',25);}
       }
     });
   }
@@ -977,7 +1106,8 @@
   function updateCameraAndWorld(){
     if(player.y>=canvas.height*.45)return;
     const diff=canvas.height*.45-player.y; player.y=canvas.height*.45; depth+=Math.max(1,Math.floor(diff/2));
-    platforms.forEach(p=>p.y+=diff); basins.forEach(b=>b.y+=diff); coins.forEach(c=>c.y+=diff); particles.forEach(p=>p.y+=diff); bubbles.forEach(b=>b.y+=diff);
+    platforms.forEach(p=>p.y+=diff); basins.forEach(b=>b.y+=diff); mudBalls.forEach(m=>m.y+=diff); coins.forEach(c=>c.y+=diff); particles.forEach(p=>p.y+=diff); bubbles.forEach(b=>b.y+=diff);
+    if(Number.isFinite(risingSwampY)) risingSwampY=Math.min(canvas.height+90,risingSwampY+diff*.82);
     const rewardBand=Math.floor(depth/100),oldBand=Math.floor(lastRewardDepth/100); if(rewardBand>oldBand)addCoins((rewardBand-oldBand)*5,'100m突破'); lastRewardDepth=depth;
     const info=getStageInfo(); stageLevel=info.level;
     if(stageLevel>previousStageLevel){previousStageLevel=stageLevel;showLevelBanner(info);}
@@ -986,15 +1116,15 @@
     platforms=platforms.filter(p=>p.y<canvas.height+110);
   }
 
-  function getGravity(){ if(mode==='endless')return Math.min(.65,.50+(getStageInfo().level-1)*.01); return .50; }
+  function getGravity(){ const js=getJumpSpeed(); return .50*js*js; }
 
   function loop(){
     if(!isPlaying)return;
     player.vy+=getGravity(); player.x+=player.vx; player.y+=player.vy;
-    player.vx*=player.mudTimer>0?.80:.84;
-    if(player.invincible>0)player.invincible--; if(player.mudTimer>0)player.mudTimer--; if(player.mudTouchCooldown>0)player.mudTouchCooldown--;
+    player.vx*=player.mudTimer>0?.80:(player.slipperyTimer>0?.955:.84);
+    if(player.invincible>0)player.invincible--; if(player.mudTimer>0)player.mudTimer--; if(player.mudTouchCooldown>0)player.mudTouchCooldown--; if(player.slipperyTimer>0)player.slipperyTimer--;
     if(player.x-player.radius<0){player.x=player.radius;player.vx=Math.abs(player.vx)*.18;} if(player.x+player.radius>canvas.width){player.x=canvas.width-player.radius;player.vx=-Math.abs(player.vx)*.18;}
-    updateCameraAndWorld(); updateTarai(); if(!isPlaying)return; handlePlatformCollisions(); if(!isPlaying)return; updateCoins(); updateParticles();
+    updateCameraAndWorld(); updateTarai(); if(!isPlaying)return; updateMudBalls(); if(!isPlaying)return; updateRisingSwamp(); if(!isPlaying)return; handlePlatformCollisions(); if(!isPlaying)return; updateCoins(); updateParticles();
     if(player.y>canvas.height+45){endRun('☠️ 沼の底に沈んだ…');return;}
     if(depth>=targetDepth){clearRun();return;}
     draw(); animId=requestAnimationFrame(loop);
@@ -1023,13 +1153,11 @@
     finalRankTimeMs=isTimeMode(mode)?finalRawTimeMs+reviveCount*5000:0;
     updateDepthBest();
     lastRunWasNewRecord=false;
-    if(mode==='endless'){
-      const oldBest=Number(saveData.best.endless)||0;
-      // updateDepthBest already ran, so compare against local ranking record to decide NEW RECORD.
-      const mine=(saveData.rankings.endless||[]).find(r=>r.playerId===saveData.playerId);
+    if(isDistanceMode(mode)){
+      const mine=(saveData.rankings[mode]||[]).find(r=>r.playerId===saveData.playerId);
       lastRunWasNewRecord=!mine || depth>Number(mine.depth||0);
-      registerLocalScore('endless',{depth,revives:reviveCount});
-      submitOnlineScore('endless',{depth,revives:reviveCount});
+      registerLocalScore(mode,{depth,revives:reviveCount});
+      submitOnlineScore(mode,{depth,revives:reviveCount});
     }
     persist();
     refreshUnlocks(true);
@@ -1044,7 +1172,7 @@
     if(animId)cancelAnimationFrame(animId);
     finalRawTimeMs=currentRawRunMs();
     finalRankTimeMs=finalRawTimeMs+reviveCount*5000;
-    addCoins(mode==='easy'?70:mode==='normal'?120:200,'CLEAR BONUS');
+    addCoins(mode==='easy'?100:mode==='normal'?180:300,'CLEAR BONUS');
     updateDepthBest();
     lastRunWasNewRecord=updateTimeBest(finalRankTimeMs);
     registerLocalScore(mode,{timeMs:finalRankTimeMs,rawTimeMs:finalRawTimeMs,revives:reviveCount});
@@ -1058,9 +1186,9 @@
     resultTitle.textContent=cleared?'🎉 CLEAR!':'GAME OVER';
     resultTitle.style.color=cleared?'#7CFF9B':'#ff6b6b';
     resultReason.textContent=reason;
-    if(mode==='endless'){
+    if(isDistanceMode(mode)){
       resultDepth.textContent=`${depth}m`;
-      resultBest.textContent=`${saveData.best.endless||0}m`;
+      resultBest.textContent=`${saveData.best[mode]||0}m`;
     } else {
       const shownRaw=finalRawTimeMs||currentRawRunMs();
       const shownRank=shownRaw+reviveCount*5000;
@@ -1084,7 +1212,7 @@
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height); ctx.save();
     if(screenShake>0){ctx.translate(rand(-screenShake,screenShake),rand(-screenShake,screenShake));screenShake*=.72;if(screenShake<.5)screenShake=0;}
-    drawBackground(); drawPlatforms(); drawCoins(); drawParticles(); drawTarai(); drawPlayer(); ctx.restore(); drawHUD();
+    drawBackground(); drawRisingSwamp(); drawPlatforms(); drawCoins(); drawParticles(); drawTarai(); drawMudBalls(); drawPlayer(); ctx.restore(); drawHUD();
   }
 
   function roundRectPath(x,y,w,h,r){
@@ -1130,6 +1258,17 @@
         ctx.beginPath();ctx.arc(xx,yy,1+(i%3)*.45,0,Math.PI*2);ctx.fill();
       }
     }
+    // 高品質にしすぎてクソゲー感を失わないための、雑な注意看板。
+    const kusoSigns = mode==='oni' ? ['死ぬな','鬼','知らんけど'] : mode==='hard' ? ['帰れ','自己責任','タライ→'] : mode==='endless' ? ['まだ登るの？','沼','戻れません'] : ['ぬま','足元注意','たぶん安全'];
+    ctx.save();ctx.globalAlpha=.18;ctx.font='900 12px sans-serif';ctx.textAlign='center';
+    for(let i=0;i<2;i++){
+      const sx=((i*257 + depth*.17)%(canvas.width+120))-60;
+      const sy=120+i*230+Math.sin(depth*.01+i)*25;
+      ctx.save();ctx.translate(sx,sy);ctx.rotate(Math.sin(i+depth*.006)*.07);
+      ctx.fillStyle='#80653b';ctx.fillRect(-28,-12,56,25);ctx.strokeStyle='#2a1c0d';ctx.lineWidth=2;ctx.strokeRect(-28,-12,56,25);
+      ctx.fillStyle='#eadb9a';ctx.fillText(kusoSigns[(i+level)%kusoSigns.length],0,5);
+      ctx.strokeStyle='#4b3218';ctx.beginPath();ctx.moveTo(0,13);ctx.lineTo(0,42);ctx.stroke();ctx.restore();
+    }ctx.restore();
     const vg=ctx.createRadialGradient(canvas.width/2,canvas.height*.44,canvas.width*.16,canvas.width/2,canvas.height*.5,canvas.width*.72);
     vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.42)');
     ctx.fillStyle=vg;ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -1169,6 +1308,19 @@
         const g=ctx.createLinearGradient(0,y,0,y+h);g.addColorStop(0,'#ffe68a');g.addColorStop(1,'#c89211');
         ctx.fillStyle=g;roundRectPath(x,y,w,h+2,5);ctx.fill();ctx.globalAlpha=1;
         ctx.strokeStyle='rgba(255,255,255,.72)';ctx.setLineDash([4,3]);roundRectPath(x+1,y+1,w-2,h,4);ctx.stroke();ctx.setLineDash([]);
+      } else if(p.type==='movingFast'){
+        const g=ctx.createLinearGradient(x,y,x+w,y);g.addColorStop(0,'#173b76');g.addColorStop(.5,'#5fe8ff');g.addColorStop(1,'#173b76');
+        ctx.fillStyle=g;roundRectPath(x,y,w,h+3,5);ctx.fill();ctx.strokeStyle='rgba(230,255,255,.85)';ctx.lineWidth=1.2;roundRectPath(x+1,y+1,w-2,h,4);ctx.stroke();
+        ctx.fillStyle='#fff';ctx.font='900 10px sans-serif';ctx.textAlign='center';ctx.fillText(p.vx>0?'»»»':'«««',x+w/2,y+10);ctx.textAlign='left';
+      } else if(p.type==='crumble'){
+        const g=ctx.createLinearGradient(0,y,0,y+h+3);g.addColorStop(0,'#a9997f');g.addColorStop(1,'#5c4f3c');ctx.fillStyle=g;roundRectPath(x,y,w,h+3,4);ctx.fill();
+        ctx.strokeStyle='#332d25';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(x+w*.28,y+2);ctx.lineTo(x+w*.42,y+8);ctx.lineTo(x+w*.37,y+h+2);ctx.moveTo(x+w*.68,y+1);ctx.lineTo(x+w*.57,y+6);ctx.lineTo(x+w*.72,y+h+2);ctx.stroke();
+      } else if(p.type==='slippery'){
+        const g=ctx.createLinearGradient(0,y,0,y+h+3);g.addColorStop(0,'#b7fff0');g.addColorStop(1,'#3c9f92');ctx.fillStyle=g;roundRectPath(x,y,w,h+3,6);ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,.65)';roundRectPath(x+5,y+2,Math.max(8,w*.34),2.5,2);ctx.fill();ctx.font='9px sans-serif';ctx.fillText('ぬる',x+w*.56,y+10);
+      } else if(p.type==='fake'){
+        const g=ctx.createLinearGradient(0,y,0,y+h+3);g.addColorStop(0,'#61d565');g.addColorStop(1,'#196535');ctx.fillStyle=g;roundRectPath(x,y,w,h+3,5);ctx.fill();
+        ctx.fillStyle='rgba(255,230,120,.30)';ctx.font='900 9px sans-serif';ctx.textAlign='center';ctx.fillText('?',x+w/2,y+10);ctx.textAlign='left';
       } else if(p.type==='bomb'){
         const g=ctx.createLinearGradient(0,y,0,y+h+4);g.addColorStop(0,'#ff5d55');g.addColorStop(1,'#8e1717');
         ctx.fillStyle=g;roundRectPath(x,y,w,h+4,5);ctx.fill();
@@ -1196,22 +1348,71 @@
 
   function drawTarai(){
     basins.forEach(b=>{
+      if(b.done)return;
       if(!b.active){
-        const cx=b.x+15,pulse=1+Math.sin(b.warning*.7)*.08;ctx.save();ctx.translate(cx,58);ctx.scale(pulse,pulse);ctx.fillStyle='rgba(255,65,65,.16)';ctx.beginPath();ctx.arc(0,-5,22,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff5858';ctx.font='900 24px sans-serif';ctx.textAlign='center';ctx.fillText('!',0,1);ctx.restore();
+        const cx=b.x+b.w/2,pulse=1+Math.sin(b.warning*.7)*.08;ctx.save();ctx.translate(cx,58);ctx.scale(pulse,pulse);ctx.fillStyle=b.giant?'rgba(255,120,20,.18)':'rgba(255,65,65,.16)';ctx.beginPath();ctx.arc(0,-5,b.giant?30:22,0,Math.PI*2);ctx.fill();ctx.fillStyle=b.giant?'#ff9b3d':'#ff5858';ctx.font=`900 ${b.giant?30:24}px sans-serif`;ctx.textAlign='center';ctx.fillText('!',0,1);ctx.restore();
         ctx.strokeStyle='rgba(255,82,82,.34)';ctx.setLineDash([5,6]);ctx.beginPath();ctx.moveTo(cx,68);ctx.lineTo(cx,Math.min(canvas.height,player.y+30));ctx.stroke();ctx.setLineDash([]);return;
       }
-      const x=b.x,y=b.y,w=30,h=15;ctx.save();ctx.shadowColor='rgba(255,214,58,.28)';ctx.shadowBlur=8;
+      const x=b.x,y=b.y,w=b.w,h=b.h;ctx.save();ctx.shadowColor='rgba(255,214,58,.28)';ctx.shadowBlur=b.giant?13:8;
       const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,'#fff7b6');g.addColorStop(.2,'#e8bf32');g.addColorStop(.55,'#fff176');g.addColorStop(1,'#9b7317');ctx.fillStyle=g;roundRectPath(x,y,w,h,4);ctx.fill();ctx.shadowBlur=0;
-      ctx.fillStyle='rgba(255,255,255,.62)';roundRectPath(x+3,y+2,w-6,2.5,2);ctx.fill();ctx.strokeStyle='#6f5314';ctx.lineWidth=1.5;roundRectPath(x,y,w,h,4);ctx.stroke();ctx.strokeStyle='#c89620';ctx.beginPath();ctx.arc(x+w/2,y+2,10,Math.PI,0);ctx.stroke();ctx.restore();
+      ctx.fillStyle='rgba(255,255,255,.62)';roundRectPath(x+3,y+2,w-6,2.5,2);ctx.fill();ctx.strokeStyle='#6f5314';ctx.lineWidth=1.5;roundRectPath(x,y,w,h,4);ctx.stroke();ctx.strokeStyle='#c89620';ctx.beginPath();ctx.arc(x+w/2,y+2,b.giant?20:10,Math.PI,0);ctx.stroke();
+      if(b.giant){ctx.fillStyle='#7b2b16';ctx.font='900 9px sans-serif';ctx.textAlign='center';ctx.fillText('特大',x+w/2,y+h-5);}
+      ctx.restore();
     });
   }
 
+  function drawMudBalls(){
+    mudBalls.forEach(m=>{
+      if(!m.active){
+        const x=m.side==='left'?15:canvas.width-15;ctx.save();ctx.fillStyle='rgba(199,105,46,.18)';ctx.beginPath();ctx.arc(x,m.y,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d8874d';ctx.font='900 18px sans-serif';ctx.textAlign='center';ctx.fillText('!',x,m.y+6);ctx.restore();return;
+      }
+      ctx.save();const g=ctx.createRadialGradient(m.x-2,m.y-3,1,m.x,m.y,m.r+4);g.addColorStop(0,'#d99a5a');g.addColorStop(.55,'#7e421f');g.addColorStop(1,'#2f170b');ctx.fillStyle=g;ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,198,120,.45)';ctx.beginPath();ctx.arc(m.x-3,m.y-3,2,0,Math.PI*2);ctx.fill();ctx.restore();
+    });
+  }
+
+  function drawRisingSwamp(){
+    const info=getStageInfo();if(!(Number(info.risingSwampSpeed)>0))return;
+    const y=risingSwampY;if(y>canvas.height+40)return;ctx.save();
+    const g=ctx.createLinearGradient(0,y,0,canvas.height);g.addColorStop(0,'rgba(128,70,31,.92)');g.addColorStop(.35,'rgba(70,38,18,.95)');g.addColorStop(1,'rgba(22,15,8,.98)');ctx.fillStyle=g;
+    ctx.beginPath();ctx.moveTo(0,canvas.height);ctx.lineTo(0,y);for(let x=0;x<=canvas.width;x+=18){ctx.lineTo(x,y+Math.sin((x+performance.now()*.08)/18)*4);}ctx.lineTo(canvas.width,canvas.height);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(230,151,77,.7)';ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<=canvas.width;x+=10){const yy=y+Math.sin((x+performance.now()*.08)/18)*4;if(x===0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);}ctx.stroke();
+    ctx.fillStyle='rgba(255,181,97,.34)';for(let i=0;i<6;i++){const bx=(i*83+performance.now()*.03)%canvas.width;const by=y+12+(i%3)*13;ctx.beginPath();ctx.arc(bx,by,2+(i%2),0,Math.PI*2);ctx.fill();}ctx.restore();
+  }
+
+  function drawFace(x,y,kind='deadpan',dir=1,scale=1){
+    ctx.save();ctx.fillStyle='#0b170f';
+    const eyeY=y-15.5*scale;
+    ctx.beginPath();ctx.arc(x-2.4*scale,eyeY,0.85*scale,0,Math.PI*2);ctx.arc(x+2.4*scale,eyeY,0.85*scale,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#0b170f';ctx.lineWidth=1.15*scale;ctx.lineCap='round';ctx.beginPath();
+    if(kind==='panic'){ctx.arc(x,y-11.7*scale,2.0*scale,0,Math.PI*2);}
+    else if(kind==='grin'){ctx.arc(x,y-13*scale,3.0*scale,.15*Math.PI,.85*Math.PI);}
+    else {ctx.moveTo(x-2.4*scale,y-11.8*scale);ctx.lineTo(x+2.4*scale,y-11.8*scale);}
+    ctx.stroke();ctx.restore();
+  }
+
   function drawStickBase(color,opts={}){
-    const x=player.x,y=player.y+(opts.yOffset||0);ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.5;ctx.lineCap='round';
-    ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x,y+5);ctx.stroke();
+    const x=player.x,y=player.y+(opts.yOffset||0),dir=Math.sign(player.vx)||1;
+    const sliding=player.slideUsed&&Math.abs(player.vx)>7;
+    const rise=player.vy<-2,fall=player.vy>3;
+    const squash=sliding?0.92:(Math.abs(player.vy)<.7?1.03:1);
+    ctx.save();ctx.translate(x,y);ctx.scale(sliding?1.08:1,squash);ctx.translate(-x,-y);
+    ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.8;ctx.lineCap='round';ctx.lineJoin='round';
+    // 頭は塗り＋輪郭で「ただの丸」から少しだけキャラ化
+    ctx.globalAlpha=.14;ctx.beginPath();ctx.arc(x,y-14,8.5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    ctx.beginPath();ctx.arc(x,y-14,7.2,0,Math.PI*2);ctx.stroke();
+    // 胴
+    ctx.beginPath();ctx.moveTo(x,y-7);ctx.quadraticCurveTo(x+dir*(sliding?3:0),y-1,x,y+5);ctx.stroke();
+    // 腕：ジャンプ・落下・スライドでポーズ変更
     ctx.beginPath();
-    if(player.slideUsed&&Math.abs(player.vx)>7){const dir=Math.sign(player.vx)||1;ctx.moveTo(x,y-2);ctx.lineTo(x-dir*11,y-2);ctx.moveTo(x,y-1);ctx.lineTo(x-dir*8,y+5);} else if(player.vy<0){ctx.moveTo(x,y-2);ctx.lineTo(x-9,y-12);ctx.moveTo(x,y-2);ctx.lineTo(x+9,y-12);} else {ctx.moveTo(x,y-2);ctx.lineTo(x-8,y+4);ctx.moveTo(x,y-2);ctx.lineTo(x+8,y+4);} ctx.stroke();
-    ctx.beginPath();ctx.moveTo(x,y+5);ctx.lineTo(x-6,y+16);ctx.moveTo(x,y+5);ctx.lineTo(x+6,y+16);ctx.stroke();
+    if(sliding){ctx.moveTo(x,y-2);ctx.lineTo(x-dir*12,y-4);ctx.moveTo(x,y-1);ctx.lineTo(x-dir*9,y+5);}
+    else if(rise){ctx.moveTo(x,y-2);ctx.lineTo(x-9,y-12);ctx.moveTo(x,y-2);ctx.lineTo(x+9,y-12);}
+    else if(fall){ctx.moveTo(x,y-2);ctx.lineTo(x-10,y+1);ctx.moveTo(x,y-2);ctx.lineTo(x+10,y+1);}
+    else {ctx.moveTo(x,y-2);ctx.lineTo(x-8,y+4);ctx.moveTo(x,y-2);ctx.lineTo(x+8,y+4);}ctx.stroke();
+    // 脚
+    ctx.beginPath();
+    if(sliding){ctx.moveTo(x,y+5);ctx.lineTo(x-dir*11,y+12);ctx.moveTo(x,y+5);ctx.lineTo(x+dir*7,y+14);}
+    else {ctx.moveTo(x,y+5);ctx.lineTo(x-6,y+16);ctx.moveTo(x,y+5);ctx.lineTo(x+6,y+16);}ctx.stroke();
+    ctx.restore();
   }
 
   function drawPlayer(){
@@ -1221,96 +1422,90 @@
     const x=player.x,y=player.y+mudOffset;
     const sliding=player.slideUsed&&Math.abs(player.vx)>7;
     const dir=Math.sign(player.vx)||1;
+    const faceKind=sliding?'panic':(player.vy<-3?'grin':'deadpan');
+    const bob=Math.sin(performance.now()/85)*.45;
     ctx.save();
 
-    // キャラ共通の薄い影。着地位置が分かりやすくなる。
-    ctx.fillStyle='rgba(0,0,0,.25)';
-    ctx.beginPath();ctx.ellipse(x,y+17,10,3,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(x,y+18,sliding?13:10,3,0,0,Math.PI*2);ctx.fill();
+    // 空中スライド残像
+    if(sliding){ctx.globalAlpha=.18;ctx.strokeStyle='#d9ffe5';ctx.lineWidth=2;for(let i=1;i<=3;i++){ctx.beginPath();ctx.moveTo(x-dir*(12+i*7),y-10+i*3);ctx.lineTo(x-dir*(2+i*5),y-10+i*3);ctx.stroke();}ctx.globalAlpha=1;}
 
     if(id==='duck'){
-      // アヒル：完全別シルエット
-      ctx.fillStyle='#ffd94a';
-      ctx.beginPath();ctx.ellipse(x,y-4,11,14,sliding?-.28*dir:0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(x+dir*2,y-20,8,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#1d1d1d';ctx.beginPath();ctx.arc(x+dir*5,y-22,1.3,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#ff8a00';ctx.beginPath();ctx.moveTo(x+dir*8,y-20);ctx.lineTo(x+dir*16,y-17);ctx.lineTo(x+dir*8,y-15);ctx.closePath();ctx.fill();
-      ctx.strokeStyle='#ffb62e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-4,y+8);ctx.lineTo(x-7,y+16);ctx.moveTo(x+4,y+8);ctx.lineTo(x+7,y+16);ctx.stroke();
-      ctx.strokeStyle='#e0ad25';ctx.beginPath();ctx.moveTo(x-dir*3,y-4);ctx.lineTo(x-dir*12,y-1);ctx.stroke();
+      ctx.translate(0,bob);ctx.fillStyle='#ffd94a';ctx.strokeStyle='#d39a16';ctx.lineWidth=1.6;
+      ctx.beginPath();ctx.ellipse(x,y-3,11.5,14.5,sliding?-.28*dir:0,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.arc(x+dir*2,y-20,8.3,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#181818';ctx.beginPath();ctx.arc(x+dir*5,y-22,1.4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ff8a00';ctx.beginPath();ctx.moveTo(x+dir*8,y-20);ctx.lineTo(x+dir*17,y-17);ctx.lineTo(x+dir*8,y-15);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#e0ad25';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-dir*2,y-5);ctx.quadraticCurveTo(x-dir*11,y-8,x-dir*13,y-1);ctx.stroke();
+      ctx.strokeStyle='#ff9e20';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-4,y+9);ctx.lineTo(x-7,y+17);ctx.lineTo(x-11,y+17);ctx.moveTo(x+4,y+9);ctx.lineTo(x+7,y+17);ctx.lineTo(x+11,y+17);ctx.stroke();
     } else if(id==='ghost'){
-      // 幽霊：半透明＋脚なし
-      ctx.globalAlpha=.72;
-      ctx.strokeStyle='#c8fff4';ctx.fillStyle='rgba(200,255,244,.12)';ctx.lineWidth=2.5;ctx.lineCap='round';
-      ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(x,y-7);ctx.quadraticCurveTo(x+dir*3,y+4,x,y+10);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x-8,y+3);ctx.moveTo(x,y-2);ctx.lineTo(x+8,y+3);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(x,y+10);ctx.quadraticCurveTo(x-9,y+16,x-2,y+20);ctx.quadraticCurveTo(x+5,y+23,x+8,y+15);ctx.stroke();
-      ctx.beginPath();ctx.arc(x,y-3,20+Math.sin(performance.now()/160)*2,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=.78;ctx.strokeStyle='#c8fff4';ctx.fillStyle='rgba(200,255,244,.16)';ctx.lineWidth=2.5;ctx.lineCap='round';
+      ctx.beginPath();ctx.arc(x,y-14,7.5,Math.PI,0);ctx.quadraticCurveTo(x+8,y+2,x+5,y+12);ctx.quadraticCurveTo(x+1,y+18,x-3,y+13);ctx.quadraticCurveTo(x-8,y+19,x-8,y+8);ctx.quadraticCurveTo(x-8,y-2,x-7.5,y-14);ctx.stroke();
+      ctx.fillStyle='#c8fff4';ctx.beginPath();ctx.arc(x-2.5,y-15.5,1.1,0,Math.PI*2);ctx.arc(x+2.5,y-15.5,1.1,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#c8fff4';ctx.beginPath();ctx.arc(x,y-11.5,2.1,0,Math.PI*2);ctx.stroke();
+      ctx.globalAlpha=.12;ctx.fillStyle='#b8fff0';ctx.beginPath();ctx.arc(x,y-3,22+Math.sin(performance.now()/150)*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
     } else if(id==='mud'){
-      // 沼人間：太めの泥ボディ＋滴
-      ctx.strokeStyle='#8a5734';ctx.fillStyle='#714329';ctx.lineCap='round';ctx.lineWidth=5;
-      ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.moveTo(x,y-6);ctx.lineTo(x,y+5);ctx.stroke();
-      ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x-9,y+3);ctx.moveTo(x,y-2);ctx.lineTo(x+9,y+3);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(x,y+5);ctx.lineTo(x-6,y+16);ctx.moveTo(x,y+5);ctx.lineTo(x+6,y+16);ctx.stroke();
-      ctx.fillStyle='#4d2d1d';ctx.beginPath();ctx.arc(x-7,y+10,3,0,Math.PI*2);ctx.arc(x+6,y+14,3.5,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='rgba(194,131,73,.75)';ctx.beginPath();ctx.arc(x+5,y-16,1.6,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#704127';ctx.strokeStyle='#3f2417';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(x,y-14,7.8,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#7e4b2c';roundRectPath(x-4,y-7,8,14,4);ctx.fill();
+      ctx.strokeStyle='#704127';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x-9,y+4);ctx.moveTo(x,y-2);ctx.lineTo(x+9,y+4);ctx.moveTo(x,y+6);ctx.lineTo(x-6,y+16);ctx.moveTo(x,y+6);ctx.lineTo(x+6,y+16);ctx.stroke();
+      ctx.fillStyle='#2b190f';ctx.beginPath();ctx.arc(x-2.5,y-15.5,1,0,Math.PI*2);ctx.arc(x+2.5,y-15.5,1,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#2b190f';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-2,y-11);ctx.lineTo(x+3,y-11);ctx.stroke();
+      ctx.fillStyle='rgba(203,137,75,.75)';for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(x-7+i*5,y+9+(i%2)*5,1.8+i*.35,0,Math.PI*2);ctx.fill();}
     } else {
-      // ベース棒人間
-      const colors={normal:'#00ff66',ninja:'#d8d8d8',salary:'#eaf4ff',pants:'#ffb18f',clown:'#fff4f7',gold:'#ffd700',god:'#d79cff'};
+      const colors={normal:'#00ff66',ninja:'#d8d8d8',salary:'#eaf4ff',pants:'#ffb18f',clown:'#fff4f7',gold:'#ffd700',god:'#d79cff',oni:'#ff5a43',kishin:'#ffb21c'};
       drawStickBase(colors[id]||'#00ff66',{yOffset:mudOffset});
 
+      if(id==='normal'){
+        ctx.fillStyle='rgba(0,255,102,.10)';ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.fill();drawFace(x,y,faceKind,dir,1);
+      }
       if(id==='ninja'){
-        // 覆面・赤マフラー・腰帯
-        ctx.fillStyle='#181818';ctx.beginPath();ctx.arc(x,y-14,6.3,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#ececec';ctx.fillRect(x-4,y-16,8,2.5);
-        ctx.strokeStyle='#ff3b3b';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(x-7,y-8);ctx.lineTo(x+7,y-8);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(x+dir*5,y-8);ctx.lineTo(x+dir*(sliding?20:15),y-(sliding?2:13));ctx.stroke();
+        ctx.fillStyle='#161616';ctx.beginPath();ctx.arc(x,y-14,6.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#d7d7d7';roundRectPath(x-5,y-17,10,3.5,1.5);ctx.fill();ctx.fillStyle='#171717';ctx.beginPath();ctx.arc(x-2.3,y-15.3,.8,0,Math.PI*2);ctx.arc(x+2.3,y-15.3,.8,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#ff3434';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(x-7,y-8);ctx.lineTo(x+7,y-8);ctx.stroke();ctx.beginPath();ctx.moveTo(x+dir*5,y-8);ctx.quadraticCurveTo(x+dir*16,y-10,x+dir*(sliding?24:18),y-(sliding?2:15));ctx.stroke();
+        ctx.strokeStyle='#8f8f8f';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(x-dir*4,y+1);ctx.lineTo(x-dir*13,y+9);ctx.stroke();
       }
-
       if(id==='salary'){
-        // スーツ・白シャツ・ネクタイ・カバン
-        ctx.fillStyle='#173a63';ctx.fillRect(x-5,y-6,10,12);
-        ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(x-3,y-6);ctx.lineTo(x,y-2);ctx.lineTo(x+3,y-6);ctx.fill();
+        ctx.fillStyle='#173a63';roundRectPath(x-5,y-7,10,13,2);ctx.fill();ctx.fillStyle='#f6fbff';ctx.beginPath();ctx.moveTo(x-3,y-7);ctx.lineTo(x,y-2);ctx.lineTo(x+3,y-7);ctx.fill();
         ctx.fillStyle='#ff4c4c';ctx.beginPath();ctx.moveTo(x,y-3);ctx.lineTo(x-2,y+2);ctx.lineTo(x,y+6);ctx.lineTo(x+2,y+2);ctx.closePath();ctx.fill();
-        ctx.strokeStyle='#8b5a2b';ctx.lineWidth=2;ctx.strokeRect(x+8,y+1,7,6);ctx.beginPath();ctx.moveTo(x+9,y+1);ctx.quadraticCurveTo(x+11.5,y-3,x+14,y+1);ctx.stroke();
+        ctx.fillStyle='#2a1e16';ctx.beginPath();ctx.arc(x,y-18.2,5.8,Math.PI,Math.PI*2);ctx.fill();drawFace(x,y,sliding?'panic':'deadpan',dir,.9);
+        const bagY=y+2+Math.sin(performance.now()/95)*1.2;ctx.fillStyle='#75431f';ctx.strokeStyle='#44260f';ctx.lineWidth=1.2;roundRectPath(x+dir*8,bagY,8,7,1.5);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(x+dir*12,bagY,3.5,Math.PI,0);ctx.stroke();
       }
-
       if(id==='pants'){
-        // 肌色＋青パンツ
-        ctx.strokeStyle='#ffb18f';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.stroke();
-        ctx.fillStyle='#2e86ff';ctx.fillRect(x-6,y+2,12,7);ctx.fillStyle='#fff';ctx.fillRect(x-1,y+2,2,7);
+        ctx.fillStyle='rgba(255,177,143,.12)';ctx.beginPath();ctx.arc(x,y-14,7,0,Math.PI*2);ctx.fill();drawFace(x,y,sliding?'panic':'grin',dir,.95);
+        ctx.fillStyle='#2e86ff';roundRectPath(x-6,y+1,12,8,2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(x-1,y+1,2,8);
+        ctx.fillStyle='rgba(255,92,92,.5)';ctx.beginPath();ctx.arc(x-5,y-12,1.4,0,Math.PI*2);ctx.arc(x+5,y-12,1.4,0,Math.PI*2);ctx.fill();
       }
-
       if(id==='clown'){
-        // 白顔・赤鼻・髪・蝶ネクタイ
-        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y-14,6,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#ff3b3b';ctx.beginPath();ctx.arc(x,y-14,2.5,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#4ae0ff';ctx.beginPath();ctx.arc(x-6,y-20,3.5,0,Math.PI*2);ctx.arc(x+5,y-21,3.5,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#ff4ad8';ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x-7,y-8);ctx.lineTo(x-7,y);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x+7,y-8);ctx.lineTo(x+7,y);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y-14,6.4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ddd';ctx.lineWidth=1;ctx.stroke();
+        ctx.fillStyle='#ff3b3b';ctx.beginPath();ctx.arc(x,y-13.5,2.3,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#141414';ctx.beginPath();ctx.arc(x-2.5,y-16,1,0,Math.PI*2);ctx.arc(x+2.5,y-16,1,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#ff3b3b';ctx.beginPath();ctx.arc(x,y-11,3.2,.15*Math.PI,.85*Math.PI);ctx.stroke();
+        const wig=['#4ae0ff','#ff4ad8','#ffe44a'];for(let i=0;i<5;i++){ctx.fillStyle=wig[i%3];ctx.beginPath();ctx.arc(x-7+i*3.5,y-20-Math.abs(2-i)*.5,3.2,0,Math.PI*2);ctx.fill();}
+        ctx.fillStyle='#ff4ad8';ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x-8,y-8);ctx.lineTo(x-8,y);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x+8,y-8);ctx.lineTo(x+8,y);ctx.closePath();ctx.fill();
       }
-
       if(id==='gold'){
-        // 金色オーラ＋小さな光粒
-        const pulse=22+Math.sin(performance.now()/110)*2;
-        ctx.fillStyle='rgba(255,220,70,.15)';ctx.beginPath();ctx.arc(x,y-3,pulse,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='#fff1a8';
-        for(let i=0;i<4;i++){const a=performance.now()/420+i*Math.PI/2;ctx.beginPath();ctx.arc(x+Math.cos(a)*18,y-3+Math.sin(a)*18,1.4,0,Math.PI*2);ctx.fill();}
+        drawFace(x,y,faceKind,dir,.95);const pulse=23+Math.sin(performance.now()/110)*2;ctx.fillStyle='rgba(255,220,70,.14)';ctx.beginPath();ctx.arc(x,y-3,pulse,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff4af';for(let i=0;i<5;i++){const a=performance.now()/420+i*Math.PI*.4;ctx.beginPath();ctx.arc(x+Math.cos(a)*19,y-3+Math.sin(a)*19,1.2+(i%2)*.5,0,Math.PI*2);ctx.fill();}
       }
-
       if(id==='god'){
-        // 王冠＋紫オーラ＋足元の輪
-        const pulse=23+Math.sin(performance.now()/120)*2;
-        ctx.strokeStyle='rgba(208,130,255,.35)';ctx.lineWidth=5;ctx.beginPath();ctx.arc(x,y-3,pulse,0,Math.PI*2);ctx.stroke();
-        ctx.fillStyle='#ffd84a';ctx.beginPath();ctx.moveTo(x-8,y-21);ctx.lineTo(x-6,y-30);ctx.lineTo(x,y-24);ctx.lineTo(x+6,y-30);ctx.lineTo(x+8,y-21);ctx.closePath();ctx.fill();
-        ctx.strokeStyle='rgba(215,156,255,.75)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y+17,14,4,0,0,Math.PI*2);ctx.stroke();
+        drawFace(x,y,'deadpan',dir,.95);const pulse=24+Math.sin(performance.now()/120)*2;ctx.strokeStyle='rgba(208,130,255,.36)';ctx.lineWidth=5;ctx.beginPath();ctx.arc(x,y-3,pulse,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#ffd84a';ctx.beginPath();ctx.moveTo(x-8,y-21);ctx.lineTo(x-6,y-31);ctx.lineTo(x,y-24);ctx.lineTo(x+6,y-31);ctx.lineTo(x+8,y-21);ctx.closePath();ctx.fill();
+        ctx.fillStyle='rgba(145,70,220,.45)';ctx.beginPath();ctx.moveTo(x-5,y-5);ctx.lineTo(x-dir*13,y+11);ctx.lineTo(x+dir*4,y+8);ctx.closePath();ctx.fill();
+        ctx.strokeStyle='rgba(215,156,255,.78)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y+17,14,4,0,0,Math.PI*2);ctx.stroke();
+      }
+      if(id==='oni'){
+        drawFace(x,y,sliding?'panic':'grin',dir,.95);ctx.fillStyle='#ffe09a';ctx.beginPath();ctx.moveTo(x-6,y-19);ctx.lineTo(x-10,y-29);ctx.lineTo(x-2,y-22);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+6,y-19);ctx.lineTo(x+10,y-29);ctx.lineTo(x+2,y-22);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#2a1710';ctx.beginPath();ctx.arc(x-2.5,y-15.5,1,0,Math.PI*2);ctx.arc(x+2.5,y-15.5,1,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#3b2418';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+dir*7,y-1);ctx.lineTo(x+dir*17,y+9);ctx.stroke();
+        ctx.fillStyle='#443328';for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(x+dir*(10+i*3),y+2+i*2,1.5,0,Math.PI*2);ctx.fill();}
+      }
+      if(id==='kishin'){
+        drawFace(x,y,'deadpan',dir,.95);const pulse=25+Math.sin(performance.now()/85)*3;ctx.strokeStyle='rgba(255,104,0,.42)';ctx.lineWidth=6;ctx.beginPath();ctx.arc(x,y-3,pulse,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#fff0ad';ctx.beginPath();ctx.moveTo(x-7,y-20);ctx.lineTo(x-13,y-33);ctx.lineTo(x-2,y-23);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+7,y-20);ctx.lineTo(x+13,y-33);ctx.lineTo(x+2,y-23);ctx.closePath();ctx.fill();
+        ctx.strokeStyle='#2b2018';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x-dir*5,y);ctx.lineTo(x-dir*19,y+12);ctx.stroke();ctx.fillStyle='#ffdf6a';for(let i=0;i<5;i++){const a=performance.now()/220+i*1.25;ctx.beginPath();ctx.arc(x+Math.cos(a)*21,y-3+Math.sin(a)*17,1.4,0,Math.PI*2);ctx.fill();}
       }
     }
 
-    // 沼状態はどのキャラでも見える共通エフェクト
-    if(player.mudTimer>0){
-      ctx.globalAlpha=1;ctx.fillStyle='rgba(110,61,28,.78)';ctx.beginPath();ctx.ellipse(x,y+15,11,4,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='rgba(171,105,50,.75)';ctx.beginPath();ctx.arc(x-7,y+7,2,0,Math.PI*2);ctx.arc(x+7,y+10,2.5,0,Math.PI*2);ctx.fill();
-    }
+    if(player.mudTimer>0){ctx.globalAlpha=1;ctx.fillStyle='rgba(110,61,28,.80)';ctx.beginPath();ctx.ellipse(x,y+15,12,4.5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(171,105,50,.78)';ctx.beginPath();ctx.arc(x-7,y+7,2,0,Math.PI*2);ctx.arc(x+7,y+10,2.5,0,Math.PI*2);ctx.fill();}
     ctx.restore();
   }
 
@@ -1320,14 +1515,15 @@
     if(isTimeMode(mode)){
       ctx.fillText(`TIME  ${formatTime(currentRankRunMs())}`,12,42);
     } else {
-      ctx.fillText(`BEST  ${saveData.best.endless||0}m`,12,42);
+      ctx.fillText(`BEST  ${saveData.best[mode]||0}m`,12,42);
     }
     const info=getStageInfo();ctx.fillStyle='#b7ffcd';ctx.fillText(`${mode.toUpperCase()} Lv.${info.level}`,12,60);
     ctx.textAlign='right';ctx.fillStyle='#ffe066';ctx.fillText(`🪙 ${Math.floor(saveData.coins)}`,canvas.width-12,24);
     ctx.fillStyle=player.slideUsed?'#69736c':'#67f5a1';ctx.fillText(player.slideUsed?'SLIDE USED':'SLIDE READY',canvas.width-12,42);
-    if(player.mudTimer>0){ctx.fillStyle='#d89557';ctx.fillText(`MUD ${Math.ceil(player.mudTimer/60*10)/10}s`,canvas.width-12,60);} else {ctx.fillStyle='#a8cfa8';ctx.fillText(targetDepth===Infinity?'TARGET ∞':`TARGET ${targetDepth}m`,canvas.width-12,60);}
+    ctx.fillStyle='#9cc7a6';ctx.font='bold 10px ui-monospace, monospace';ctx.fillText(`SPEED x${getJumpSpeed().toFixed(2)}`,canvas.width-12,74);
+    if(player.mudTimer>0){ctx.fillStyle='#d89557';ctx.fillText(`MUD ${Math.ceil(player.mudTimer/60*10)/10}s`,canvas.width-12,60);} else if(player.slipperyTimer>0){ctx.fillStyle='#8fffe8';ctx.fillText('SLIPPERY!',canvas.width-12,60);} else {ctx.fillStyle='#a8cfa8';ctx.fillText(targetDepth===Infinity?'TARGET ∞':`TARGET ${targetDepth}m`,canvas.width-12,60);}
     if(flashTimer>0){flashTimer--;ctx.textAlign='center';ctx.font='bold 17px sans-serif';ctx.fillStyle='#fff4a8';ctx.fillText(flashMessage,canvas.width/2,92);}
-    if(levelBannerTimer>0){levelBannerTimer--;const alpha=Math.min(1,levelBannerTimer/20);ctx.globalAlpha=alpha;ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(18,canvas.height*.28,canvas.width-36,64);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 19px sans-serif';ctx.fillText(levelBanner,canvas.width/2,canvas.height*.28+28);ctx.fillStyle='#ffe066';ctx.font='11px sans-serif';ctx.fillText('ここから沼が一段深くなる',canvas.width/2,canvas.height*.28+48);ctx.globalAlpha=1;}
+    if(levelBannerTimer>0){levelBannerTimer--;const alpha=Math.min(1,levelBannerTimer/20);ctx.globalAlpha=alpha;ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(18,canvas.height*.28,canvas.width-36,64);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 19px sans-serif';ctx.fillText(levelBanner,canvas.width/2,canvas.height*.28+28);ctx.fillStyle='#ffe066';ctx.font='11px sans-serif';ctx.fillText(mode==='oni'?'難易度調整担当：逃亡':(info.level>=5?'難易度調整担当：不在':'ここから沼が一段深くなる'),canvas.width/2,canvas.height*.28+48);ctx.globalAlpha=1;}
     ctx.fillStyle='rgba(255,255,255,.07)';ctx.fillRect(0,canvas.height-42,canvas.width/2,42);ctx.fillRect(canvas.width/2,canvas.height-42,canvas.width/2,42);ctx.fillStyle='rgba(255,255,255,.25)';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('← TAP',canvas.width*.25,canvas.height-17);ctx.fillText('TAP →',canvas.width*.75,canvas.height-17);ctx.restore();
   }
 
