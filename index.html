@@ -205,7 +205,7 @@
   // ★ここに Firebase Realtime Database のURLを1行だけ貼ると、友達全員共通ランキングになります。
   // 例: https://numa-game-default-rtdb.asia-southeast1.firebasedatabase.app
   // Firebase Console → Realtime Database に表示されるURLをそのまま貼ってください。
-  const FIREBASE_DB_URL = 'https://numa-stickman-jump-default-rtdb.asia-southeast1.firebasedatabase.app/';
+  const FIREBASE_DB_URL = 'https://numa-stickman-jump-default-rtdb.asia-southeast1.firebasedatabase.app';
   const RANK_LIMIT = 10;
 
   const SKINS = {
@@ -284,7 +284,7 @@
   function makeDefaultName() { return `沼民${Math.floor(1000 + Math.random()*9000)}`; }
   function cleanPlayerName(v) { return String(v || '').replace(/[<>\\/&]/g,'').trim().slice(0,12) || '名無し沼民'; }
   function firebaseEnabled() {
-    const u = String(FIREBASE_DB_URL || '').trim();
+    const u = firebaseBase();
     return /^https:\/\/[a-z0-9-]+(?:-default-rtdb)?(?:\.[a-z0-9-]+)?\.(?:firebaseio\.com|firebasedatabase\.app)$/i.test(u);
   }
   function firebaseBase() { return String(FIREBASE_DB_URL || '').trim().replace(/\/$/,''); }
