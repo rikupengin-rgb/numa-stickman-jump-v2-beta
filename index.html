@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#050b05">
-  <title>沼ゲーのクソゲー Ver.2.5 β</title>
+  <title>沼ゲーのクソゲー Ver.2.5.3 β</title>
   <style>
     * { box-sizing: border-box !important; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
     html, body { width: 100%; height: 100%; background: #050b05; color: #00ff66; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif; overflow: hidden; position: fixed; }
@@ -76,7 +76,7 @@
 
   <div id="menuOverlay" class="overlay">
     <div class="menu-card">
-      <h1>☣️ 沼ゲーのクソゲー Ver.2.5 β</h1>
+      <h1>☣️ 沼ゲーのクソゲー Ver.2.5.3 β</h1>
       <div class="subtitle">〜 横スラを覚えたら、沼が本気を出す 〜</div>
       <div class="wallet">
         <span>🪙 COIN <strong id="menuCoins">0</strong></span>
@@ -691,34 +691,35 @@
   function currentRankRunMs() { return currentRawRunMs() + reviveCount * 5000; }
   function bestTimeFor(m = mode) { return Number(saveData.bestTimes && saveData.bestTimes[m]) || 0; }
 
+  // Ver.2.5.3: 足場密度を下げ、横スラ前提でも緊張感が残るよう再調整
   function getStageInfo(currentMode = mode, d = depth) {
     if (currentMode === 'easy') {
-      if (d < 250) return { level:1, name:'足慣らし', width:[68,84], shift:42, risk:.14, gap:74, move:[1.4,2.2], bomb:false, swamp:.35, vanish:.15, moving:.28, vanishFrames:9, tarai:false };
-      if (d < 500) return { level:2, name:'ぬかるみ', width:[62,78], shift:49, risk:.26, gap:76, move:[1.8,2.8], bomb:false, swamp:.48, vanish:.16, moving:.30, vanishFrames:8, tarai:false };
-      if (d < 750) return { level:3, name:'消える足場', width:[56,72], shift:56, risk:.38, gap:78, move:[2.2,3.4], bomb:false, swamp:.44, vanish:.30, moving:.26, vanishFrames:6, tarai:false };
-      return { level:4, name:'イージー最深部', width:[50,66], shift:63, risk:.48, gap:80, move:[2.8,4.0], bomb:false, swamp:.44, vanish:.28, moving:.28, vanishFrames:5, tarai:false };
+      if (d < 250) return { level:1, name:'足慣らし', width:[68,84], shift:42, risk:.08, gap:78, move:[1.4,2.2], bomb:false, swamp:.35, vanish:.15, moving:.28, vanishFrames:9, tarai:false };
+      if (d < 500) return { level:2, name:'ぬかるみ', width:[62,78], shift:49, risk:.14, gap:82, move:[1.8,2.8], bomb:false, swamp:.48, vanish:.16, moving:.30, vanishFrames:8, tarai:false };
+      if (d < 750) return { level:3, name:'消える足場', width:[56,72], shift:56, risk:.22, gap:86, move:[2.2,3.4], bomb:false, swamp:.44, vanish:.30, moving:.26, vanishFrames:6, tarai:false };
+      return { level:4, name:'イージー最深部', width:[50,66], shift:63, risk:.30, gap:90, move:[2.8,4.0], bomb:false, swamp:.44, vanish:.28, moving:.28, vanishFrames:5, tarai:false };
     }
     if (currentMode === 'normal') {
-      if (d < 250) return { level:1, name:'基本区間', width:[66,82], shift:46, risk:.18, gap:75, move:[1.6,2.5], bomb:false, swamp:.34, vanish:.18, moving:.28, vanishFrames:9, tarai:false };
-      if (d < 500) return { level:2, name:'沼＋移動床', width:[60,76], shift:53, risk:.32, gap:77, move:[2.0,3.2], bomb:false, swamp:.46, vanish:.20, moving:.30, vanishFrames:8, tarai:false };
-      if (d < 750) return { level:3, name:'爆弾解禁', width:[56,72], shift:58, risk:.44, gap:78, move:[2.4,3.6], bomb:true, swamp:.33, vanish:.20, moving:.22, bombWeight:.25, vanishFrames:7, tarai:false };
-      if (d < 1000) return { level:4, name:'高速ギミック', width:[50,68], shift:64, risk:.52, gap:80, move:[3.0,4.4], bomb:true, swamp:.30, vanish:.25, moving:.22, bombWeight:.30, vanishFrames:5, tarai:false };
-      if (d < 1200) return { level:5, name:'タライ解禁', width:[50,66], shift:66, risk:.54, gap:80, move:[3.1,4.5], bomb:true, swamp:.30, vanish:.23, moving:.20, bombWeight:.32, vanishFrames:5, tarai:true, taraiChance:.0028, taraiWarning:50, pairChance:0, predictive:false };
-      return { level:6, name:'複合沼地', width:[46,64], shift:70, risk:.64, gap:82, move:[3.4,4.8], bomb:true, swamp:.34, vanish:.20, moving:.18, bombWeight:.36, vanishFrames:4, tarai:true, taraiChance:.0042, taraiWarning:42, pairChance:.28, predictive:true };
+      if (d < 250) return { level:1, name:'基本区間', width:[66,82], shift:46, risk:.10, gap:80, move:[1.6,2.5], bomb:false, swamp:.34, vanish:.18, moving:.28, vanishFrames:9, tarai:false };
+      if (d < 500) return { level:2, name:'沼＋移動床', width:[60,76], shift:53, risk:.18, gap:84, move:[2.0,3.2], bomb:false, swamp:.46, vanish:.20, moving:.30, vanishFrames:8, tarai:false };
+      if (d < 750) return { level:3, name:'爆弾解禁', width:[56,72], shift:58, risk:.28, gap:88, move:[2.4,3.6], bomb:true, swamp:.33, vanish:.20, moving:.22, bombWeight:.25, vanishFrames:7, tarai:false };
+      if (d < 1000) return { level:4, name:'高速ギミック', width:[50,68], shift:64, risk:.34, gap:90, move:[3.0,4.4], bomb:true, swamp:.30, vanish:.25, moving:.22, bombWeight:.30, vanishFrames:5, tarai:false };
+      if (d < 1200) return { level:5, name:'タライ解禁', width:[50,66], shift:66, risk:.38, gap:92, move:[3.1,4.5], bomb:true, swamp:.30, vanish:.23, moving:.20, bombWeight:.32, vanishFrames:5, tarai:true, taraiChance:.0028, taraiWarning:50, pairChance:0, predictive:false };
+      return { level:6, name:'複合沼地', width:[46,64], shift:70, risk:.50, gap:92, move:[3.4,4.8], bomb:true, swamp:.34, vanish:.20, moving:.18, bombWeight:.36, vanishFrames:4, tarai:true, taraiChance:.0042, taraiWarning:42, pairChance:.28, predictive:true };
     }
     if (currentMode === 'hard') {
       const lv = Math.min(4, 1 + Math.floor(d / 500));
       const data = [
-        { width:[56,70], shift:60, risk:.50, gap:78, move:[2.8,4.0], warning:40, pair:.06, pred:false, chance:.0038 },
-        { width:[52,68], shift:65, risk:.58, gap:80, move:[3.1,4.4], warning:36, pair:.16, pred:true, chance:.0042 },
-        { width:[48,64], shift:70, risk:.64, gap:82, move:[3.5,4.9], warning:32, pair:.30, pred:true, chance:.0048 },
-        { width:[44,62], shift:74, risk:.70, gap:83, move:[3.8,5.2], warning:29, pair:.42, pred:true, chance:.0053 }
+        { width:[56,70], shift:60, risk:.34, gap:88, move:[2.8,4.0], warning:40, pair:.06, pred:false, chance:.0038 },
+        { width:[52,68], shift:65, risk:.42, gap:90, move:[3.1,4.4], warning:36, pair:.16, pred:true, chance:.0042 },
+        { width:[48,64], shift:70, risk:.50, gap:92, move:[3.5,4.9], warning:32, pair:.30, pred:true, chance:.0048 },
+        { width:[44,62], shift:74, risk:.56, gap:94, move:[3.8,5.2], warning:29, pair:.42, pred:true, chance:.0053 }
       ][lv-1];
       return { level:lv, name:['ハード入口','先読み開始','2連タライ','地獄'][lv-1], width:data.width, shift:data.shift, risk:data.risk, gap:data.gap, move:data.move, bomb:true, swamp:.28, vanish:.20, moving:.18, bombWeight:.34, vanishFrames:5, tarai:true, taraiChance:data.chance, taraiWarning:data.warning, pairChance:data.pair, predictive:data.pred };
     }
     const lv = 1 + Math.floor(d / 500);
     const capped = Math.min(lv, 8);
-    return { level:lv, name:`泥沼 Lv.${lv}`, width:[Math.max(42,60-capped*2), Math.max(58,74-capped)], shift:Math.min(78,56+capped*3), risk:Math.min(.76,.46+capped*.04), gap:Math.min(86,78+capped), move:[2.6+capped*.18,4.0+capped*.24], bomb:true, swamp:.28, vanish:.20, moving:.18, bombWeight:Math.min(.42,.30+capped*.015), vanishFrames:Math.max(3,6-Math.floor(capped/3)), tarai:true, taraiChance:Math.min(.0065,.0028+capped*.00045), taraiWarning:Math.max(26,42-capped*2), pairChance:Math.min(.48,.08+capped*.055), predictive:lv >= 2 };
+    return { level:lv, name:`泥沼 Lv.${lv}`, width:[Math.max(42,60-capped*2), Math.max(58,74-capped)], shift:Math.min(78,56+capped*3), risk:Math.min(.62,.32+capped*.04), gap:Math.min(98,86+capped*2), move:[2.6+capped*.18,4.0+capped*.24], bomb:true, swamp:.28, vanish:.20, moving:.18, bombWeight:Math.min(.42,.30+capped*.015), vanishFrames:Math.max(3,6-Math.floor(capped/3)), tarai:true, taraiChance:Math.min(.0065,.0028+capped*.00045), taraiWarning:Math.max(26,42-capped*2), pairChance:Math.min(.48,.08+capped*.055), predictive:lv >= 2 };
   }
 
   function stageLevelDescription(info) {
